@@ -3315,9 +3315,7 @@ document.querySelectorAll('.cat-tab').forEach(t => {
         panel.classList.add('active');
       }
     });
-    // 滚动复位到顶部
-    const contentArea = document.querySelector('#page-home .content-area');
-    if (contentArea) contentArea.scrollTop = 0;
+    // 保持当前滚动位置，不强制回顶
   });
 });
 document.querySelectorAll('.filter-chip').forEach(c => {
