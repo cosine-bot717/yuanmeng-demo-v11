@@ -1,0 +1,3878 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>圆梦教育 · 金融学习</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --red: #D42B3A;
+  --red-dark: #A81E2A;
+  --red-light: #FFF0F1;
+  --red-mid: rgba(212,43,58,0.10);
+  --green: #00B96B;
+  --green-light: #E6F9F2;
+  --orange: #F5A623;
+  --brand: #D42B3A;
+  --bg: #F5F5F7;
+  --white: #FFFFFF;
+  --border: #EBEBEB;
+  --text-main: #1A1A1A;
+  --text-sub: #666666;
+  --text-hint: #AAAAAA;
+  --nav-h: 62px;
+  --status-h: 44px;
+  --radius: 14px;
+}
+
+/* ── SVG Icons ── */
+.icon-svg {
+  width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.icon-svg svg {
+  width: 100%; height: 100%;
+  fill: currentColor;
+}
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background: #C8C8CC;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* ── Phone Shell（桌面/平板展示用） ── */
+.phone-wrap {
+  width: 390px;
+  height: 844px;
+  background: #111;
+  border-radius: 54px;
+  padding: 13px;
+  box-shadow:
+    0 40px 100px rgba(0,0,0,0.50),
+    inset 0 0 0 1px rgba(255,255,255,0.10),
+    0 0 0 2px rgba(0,0,0,0.8);
+  flex-shrink: 0;
+  position: relative;
+  transform-origin: center center;
+}
+.phone-notch {
+  position: absolute; top: 13px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 34px; background: #111;
+  border-radius: 0 0 22px 22px; z-index: 100;
+}
+.phone-screen {
+  width: 100%; height: 100%; background: var(--bg);
+  border-radius: 42px;
+  display: flex; flex-direction: column; position: relative;
+  overflow: hidden;
+  isolation: isolate; /* 确保z-index层叠上下文正确 */
+}
+
+/* ── Status bar ── */
+.status-bar {
+  position: absolute; top: 0; left: 0; width: 100%;
+  height: var(--status-h); background: transparent;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 28px 0; flex-shrink: 0; z-index: 999;
+}
+.status-time { font-size: 15px; font-weight: 600; color: #fff; }
+.status-icons { display:flex; gap:5px; align-items:center; font-size:12px; color: #fff; }
+.status-icons svg { fill: #fff; }
+
+/* ── Status bar dark mode (for white background pages) ── */
+.status-bar.dark .status-time { color: #333333 !important; }
+.status-bar.dark .status-icons { color: #333333 !important; }
+.status-bar.dark .status-icons svg { fill: #333333 !important; }
+
+/* ── Content ── */
+.content-area {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  padding-bottom: 90px;
+  /* 关键：让content-area在phone-screen内部被裁切，不溢出到导航栏后面 */
+  position: relative;
+  z-index: 1;
+}
+/* 首页：从header底部颜色接续，缓缓褪到白色 */
+#page-home .content-area {
+  background: linear-gradient(
+    to bottom,
+    #E04050 0px,
+    rgba(220, 60, 72, 0.70) 60px,
+    rgba(220, 80, 80, 0.38) 120px,
+    rgba(225, 120, 100, 0.15) 190px,
+    rgba(240, 200, 185, 0.06) 260px,
+    #F5F5F7 320px
+  );
+}
+.content-area::-webkit-scrollbar { display: none; }
+
+/* ── Bottom nav (标准移动端导航栏) ── */
+.bottom-nav {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 77px !important;           /* 64px导航 + 13px底部圆角区 */
+  background: #FFFFFF !important;
+  border-top: 1px solid #F0F0F0 !important;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.10) !important;
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: flex-start !important;
+  padding-top: 0 !important;
+  z-index: 99999 !important;
+  border-radius: 0 0 42px 42px !important;
+  /* 彻底不透明，防止内容透视 */
+  opacity: 1 !important;
+  overflow: hidden !important;
+}
+/* 非主要页面隐藏导航栏 */
+.bottom-nav.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(100%);
+  z-index: -1;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; cursor: pointer; flex: 1; padding: 10px 0; transition: all 0.2s;
+}
+.nav-item:active { transform: scale(0.92); }
+.nav-icon {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-icon svg {
+  width: 24px; height: 24px;
+  fill: #C4C4C4; /* 未选中状态浅灰色 */
+  transition: fill 0.2s;
+}
+.nav-item.active .nav-icon svg {
+  fill: #D42B3A; /* 选中状态圆梦红 */
+}
+.nav-label {
+  font-size: 12px;
+  color: #C4C4C4;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-item.active .nav-label {
+  color: #D42B3A;
+}
+.nav-icon-wrap { position: relative; display: inline-flex; }
+.nav-badge {
+  position: absolute; top: -3px; right: -6px;
+  background: linear-gradient(135deg,#C0392B,#E8354A); color: #fff; font-size: 10px;
+  min-width: 16px; height: 16px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px; font-weight: 600;
+}
+
+/* ── Page system ── */
+.page { display: none; width: 100%; flex: 1; min-height: 0; position: relative; z-index: 1; }
+.page.active { display: flex; flex-direction: column; }
+
+/* ============================================================
+   HOME PAGE
+   ============================================================ */
+.home-header {
+  background: linear-gradient(160deg, #C8202E 0%, #D42B3A 55%, #E04050 100%);
+  padding: 50px 20px 20px;
+  position: sticky; top: 0; z-index: 100 !important;
+  overflow: hidden;
+  box-shadow: none;
+}
+.home-header-sticky-bg { display: none; }
+.home-header::before {
+  content: ''; position: absolute;
+  width: 260px; height: 260px; background: rgba(255,255,255,0.06);
+  border-radius: 50%; top: -100px; right: -60px;
+}
+/* header底部用伪元素自然向下渐变消色 */
+.home-header::after {
+  content: '';
+  position: absolute;
+  bottom: -24px; left: 0; right: 0; height: 28px;
+  background: linear-gradient(to bottom, #E04050 0%, rgba(224,64,80,0) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+.home-header-fade { display: none; }
+/* 品牌标题行 */
+.brand-title-row {
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px; gap: 8px; position: relative; z-index: 2;
+}
+.brand-logo-icon {
+  width: 28px; height: 28px; flex-shrink: 0;
+}
+.brand-name-text {
+  font-size: 19px; font-weight: 800; color: #fff;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.brand-tagline {
+  font-size: 9px; color: rgba(255,255,255,0.65);
+  font-weight: 400; letter-spacing: 2px;
+  text-align: center; margin-top: -2px;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+.search-bar {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,0.15); border-radius: 22px;
+  padding: 9px 14px; gap: 8px;
+  border: 1px solid rgba(255,255,255,0.25);
+  position: relative; z-index: 2;
+}
+.search-logo-mini {
+  width: 22px; height: 22px; flex-shrink: 0;
+}
+.search-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.search-text { color: rgba(255,255,255,0.6); font-size: 13px; line-height: 1; flex: 1; }
+.search-btn-pill {
+  background: rgba(255,255,255,0.22); border-radius: 14px;
+  padding: 4px 11px; font-size: 12px; font-weight: 600; color: #fff;
+  border: 1px solid rgba(255,255,255,0.35); flex-shrink: 0;
+}
+
+/* ── Banner 轮播 ── */
+.banner-wrap {
+  position: relative; margin: 6px 16px 0;
+  border-radius: 14px; overflow: hidden; height: 138px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.20);
+}
+.banner-track {
+  display: flex; height: 100%;
+  transition: transform 0.42s cubic-bezier(0.4,0,0.2,1);
+}
+.banner-slide {
+  min-width: 100%; height: 100%;
+  position: relative; overflow: hidden; flex-shrink: 0;
+}
+.banner-slide-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+.banner-slide-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(100deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.18) 55%, transparent 100%);
+}
+.banner-content {
+  position: absolute; inset: 0; padding: 14px 16px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.banner-live-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: linear-gradient(90deg,#C0392B,#E8354A); color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 3px 8px; border-radius: 10px;
+  margin-bottom: 6px; width: fit-content;
+}
+.banner-live-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: #fff;
+  animation: blink 1.2s infinite;
+}
+.banner-title {
+  font-size: 15px; font-weight: 800; color: #fff;
+  line-height: 1.3; margin-bottom: 3px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+}
+.banner-sub {
+  font-size: 11px; color: rgba(255,255,255,0.8);
+}
+.banner-cta {
+  position: absolute; right: 14px; bottom: 14px;
+  background: linear-gradient(135deg,#C0392B,#E8354A); color: #fff;
+  font-size: 11px; font-weight: 700;
+  padding: 5px 13px; border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(212,43,58,0.45);
+}
+.banner-dots {
+  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 5px; z-index: 10;
+}
+.banner-dot {
+  width: 5px; height: 5px; border-radius: 3px;
+  background: rgba(255,255,255,0.4);
+  transition: all 0.3s ease;
+}
+.banner-dot.active { width: 16px; background: #fff; }
+
+/* ── 骨架屏 ── */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg,#f0f0f0 25%,#e4e4e4 50%,#f0f0f0 75%);
+  background-size: 800px 100%; animation: shimmer 1.4s infinite; border-radius: 6px;
+}
+#skeleton-screen {
+  position: absolute; inset: 0; background: #F5F5F7; z-index: 500;
+  border-radius: 42px; overflow: hidden;
+  opacity: 1; transition: opacity 0.5s ease; pointer-events: none;
+}
+#skeleton-screen.fade-out { opacity: 0; }
+#skeleton-screen.hidden { display: none; }
+.sk-hd {
+  height: 118px;
+  background: linear-gradient(160deg,#C8202E 0%,#D42B3A 55%,#E04050 100%);
+  padding: 50px 20px 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.sk-brand-row { display:flex; align-items:center; justify-content:center; gap:8px; }
+.sk-logo { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.25); }
+.sk-brand-name { width:90px; height:18px; border-radius:6px; background:rgba(255,255,255,0.3); }
+.sk-search-bar { height:36px; border-radius:18px; background:rgba(255,255,255,0.18); }
+.sk-body { padding:12px 16px; display:flex; flex-direction:column; gap:10px; }
+.sk-banner { height:136px; border-radius:14px; }
+.sk-market { height:90px; border-radius:14px; }
+.sk-list-item { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid #f0f0f0; }
+.sk-thumb { width:68px; height:68px; border-radius:8px; flex-shrink:0; }
+.sk-lines { flex:1; display:flex; flex-direction:column; gap:8px; padding-top:4px; }
+.sk-line-lg { height:13px; border-radius:5px; width:85%; }
+.sk-line-sm { height:11px; border-radius:5px; width:55%; }
+
+/* ── 页面切换动画 ── */
+.page { transition: opacity 0.25s ease; }
+.page-slide-in { animation: slideInRight 0.28s cubic-bezier(0.4,0,0.2,1) both; }
+.page-slide-back { animation: slideInLeft 0.28s cubic-bezier(0.4,0,0.2,1) both; }
+@keyframes slideInRight { from { opacity:0; transform:translateX(28px); } to { opacity:1; transform:translateX(0); } }
+@keyframes slideInLeft { from { opacity:0; transform:translateX(-28px); } to { opacity:1; transform:translateX(0); } }
+
+/* 沉浸式大容器 */
+.main-content-wrapper {
+  background: #FFFFFF;
+  border-radius: 12px;
+  margin: 16px 16px 0 16px;
+  padding-top: 8px;
+  position: relative;
+  z-index: 1;
+  width: auto;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+}
+
+/* 双层联合吸顶容器 */
+.sticky-tabs-group {
+  position: sticky; top: 118px; z-index: 90 !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  padding: 16px 0 12px;
+  border-radius: 12px;
+  display: flex; flex-direction: column; row-gap: 12px;
+}
+
+/* tabs */
+.cat-tabs {
+  display: flex; align-items: center; overflow-x: auto;
+  white-space: nowrap; scrollbar-width: none;
+  padding: 0 16px;
+  background: transparent;
+  margin-bottom: 0;
+  gap: 24px;
+}
+.cat-tabs::-webkit-scrollbar { display: none; }
+.cat-tab {
+  flex-shrink: 0; font-size: 14px; font-weight: 500;
+  padding: 8px 0; border-radius: 0;
+  color: #666666; cursor: pointer; white-space: nowrap;
+  transition: color 0.2s; border: none; background: none;
+  position: relative;
+}
+.cat-tab.active {
+  color: #D42B3A; font-weight: 600; background: none;
+}
+.cat-tab.active::after {
+  content: ''; position: absolute;
+  width: 16px; height: 3px; border-radius: 2px;
+  bottom: 4px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(90deg,#C0392B,#E8354A);
+}
+
+/* 顶部红色→白色过渡区 */
+.home-gradient-bg {
+  background: transparent;
+  padding-top: 4px;
+  padding-bottom: 12px;
+}
+
+/* market-section、marquee 在渐变区内去掉白底，融入渐变 */
+.home-gradient-bg .market-section {
+  background: #FFFFFF;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.home-gradient-bg .stocks-marquee-wrap {
+  background: #FFFFFF;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* Market */
+.market-section {
+  background: var(--white); margin: 10px 16px 0;
+  border-radius: var(--radius); padding: 14px 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-size: 14px; font-weight: 700; color: var(--text-main); display:flex; align-items:center; gap:6px; }
+.section-more { font-size: 12px; color: var(--red); cursor:pointer; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: blink 1.4s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.market-item { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+.market-name { font-size: 11px; color: var(--text-sub); margin-bottom: 4px; }
+.market-val { font-size: 16px; font-weight: 700; color: var(--text-main); }
+.market-chg { font-size: 11px; font-weight: 600; margin-top: 2px; }
+.up { color: var(--red); }
+.down { color: var(--green); }
+
+/* Marquee */
+.stocks-marquee-wrap {
+  background: var(--white); margin: 10px 16px 0;
+  border-radius: var(--radius); padding: 10px 0; overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.marquee-label { font-size: 11px; color: var(--text-hint); padding: 0 14px 6px; }
+.stocks-marquee { display: flex; width: max-content; animation: scroll 22s linear infinite; }
+.stocks-marquee:hover { animation-play-state: paused; }
+@keyframes scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.stock-chip { display:flex; flex-direction:column; align-items:center; padding:4px 16px; border-right:1px solid var(--border); min-width:88px; }
+.stock-chip-name { font-size:11px; color:var(--text-sub); margin-bottom:2px; }
+.stock-chip-price { font-size:13px; font-weight:700; color:var(--text-main); }
+.stock-chip-chg { font-size:10px; font-weight:600; }
+
+/* Recent */
+.recent-section {
+  background: none; margin: 0;
+  padding: 12px 16px 16px;
+}
+.recent-tabs-row {
+  display: flex; gap: 12px;
+  padding: 0 16px;
+  background: transparent;
+  margin-bottom: 0;
+}
+.recent-tab {
+  font-size: 13px; color: #999999; font-weight: 500;
+  cursor: pointer; padding: 4px 12px; border-radius: 16px;
+  background: transparent; transition: all 0.2s;
+}
+.recent-tab.active {
+  color: #D42B3A; font-weight: 600;
+  background: rgba(212,43,58,0.08);
+}
+.recent-card {
+  display:flex; gap:12px; align-items:center;
+  padding:12px 0; cursor:pointer;
+  background: transparent;
+  border-bottom: none;
+  margin-bottom: 20px;
+}
+.recent-card:last-child { margin-bottom:0; }
+
+/* ── 最近学习海报组件 (营销质感) ── */
+.recent-poster {
+  width: 68px; height: 68px;
+  border-radius: 8px; flex-shrink: 0;
+  position: relative; overflow: hidden;
+  margin-right: 0;
+}
+.recent-poster::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.2) 70%, transparent 100%);
+  z-index: 1;
+}
+.recent-poster-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; z-index: 0;
+}
+.recent-poster-badge {
+  position: absolute; top: 5px; left: 5px; z-index: 3;
+  background: #1A1A1A;
+  color: #D4AF37;
+  font-size: 7px; font-weight: 700;
+  padding: 2px 5px; border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+.recent-poster-content {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  padding: 5px 6px 6px;
+}
+.recent-poster-title {
+  font-size: 9px; font-weight: 800; color: #fff;
+  line-height: 1.15;
+  letter-spacing: 0.3px;
+}
+.recent-poster-sub {
+  font-size: 7px; color: #E5C158;
+  line-height: 1.2;
+  opacity: 0.9;
+  margin-top: 1px;
+}
+
+.recent-info {
+  flex:1; min-width:0;
+  display: flex; flex-direction: column; justify-content: space-between;
+  height: 68px;
+}
+.recent-title { font-size:13px; font-weight:600; color:var(--text-main); margin-bottom:4px; line-height:1.4; }
+.recent-sub { font-size:11px; color:var(--text-hint); }
+.progress-bar { height:3px; background:var(--border); border-radius:2px; }
+.progress-fill { height:100%; border-radius:2px; }
+.badge-tag {
+  font-size: 12px; font-weight: 700;
+  padding: 2px 6px; border-radius: 4px;
+  display: inline-block; width: fit-content;
+  margin-bottom: 6px; line-height: 1.2;
+}
+.badge-vip { background: #FFF3DC; color: #B8760A; }
+.badge-free { background: #E6F9F2; color: #007A45; }
+
+/* Tab Content Panels */
+.tab-content-panel {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.tab-content-panel.active {
+  display: block;
+  opacity: 1;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+.empty-state-icon {
+  width: 80px;
+  height: 80px;
+  background: #F5F5F5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.empty-state-icon svg {
+  width: 40px;
+  height: 40px;
+  fill: #CCCCCC;
+}
+.empty-state-text {
+  font-size: 14px;
+  color: #AAAAAA;
+  margin-bottom: 8px;
+}
+.empty-state-hint {
+  font-size: 12px;
+  color: #CCCCCC;
+}
+
+/* Live Badge */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  gap: 4px;
+  padding: 2px 8px;
+  background: #E62C2C;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 12px;
+  margin-bottom: 6px;
+}
+.live-dot {
+  width: 5px;
+  height: 5px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+
+/* Circle List - 与系列课样式一致 */
+.circle-section {
+  padding: 16px;
+}
+.circle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.circle-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  background: transparent;
+  border-bottom: 1px solid #F5F5F5;
+  cursor: pointer;
+}
+.circle-card:last-child {
+  border-bottom: none;
+}
+.circle-cover {
+  width: 68px;
+  height: 68px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.circle-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.circle-cover-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  padding: 2px 5px;
+  background: rgba(0,0,0,0.6);
+  color: #FFFFFF;
+  font-size: 10px;
+  border-radius: 4px;
+}
+.circle-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.circle-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.circle-update {
+  font-size: 12px;
+  color: #AAAAAA;
+}
+.circle-more {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.circle-more svg {
+  width: 16px;
+  height: 16px;
+  fill: #CCCCCC;
+}
+
+/* Bottom Action Sheet */
+#action-sheet-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+#action-sheet-overlay.active {
+  display: block;
+  opacity: 1;
+}
+#action-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #FFFFFF;
+  border-radius: 16px 16px 0 0;
+  z-index: 2001;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+#action-sheet-overlay.active #action-sheet {
+  transform: translateY(0);
+}
+.action-sheet-options {
+  padding: 8px 0;
+}
+.action-sheet-option {
+  padding: 16px;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+  border-bottom: 1px solid #F5F5F5;
+  color: #1A1A1A;
+}
+.action-sheet-option:last-child {
+  border-bottom: none;
+}
+.action-sheet-option.danger {
+  color: #D42B3A;
+}
+.action-sheet-cancel-group {
+  margin: 8px;
+  background: #F5F5F5;
+  border-radius: 12px;
+}
+.action-sheet-cancel {
+  padding: 16px;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+  color: #666666;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.7);
+  color: #FFFFFF;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 3000;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1;
+}
+
+/* 统一列表项样式 */
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  background: transparent;
+  border-bottom: 1px solid #F5F5F5;
+  cursor: pointer;
+}
+.list-item:last-child {
+  border-bottom: none;
+}
+.list-item-cover {
+  width: 68px;
+  height: 68px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.list-item-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.list-item-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  padding: 2px 5px;
+  background: rgba(0,0,0,0.6);
+  color: #FFFFFF;
+  font-size: 10px;
+  border-radius: 4px;
+}
+.list-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.list-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.list-item-meta {
+  font-size: 12px;
+  color: #AAAAAA;
+}
+.list-item-action {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.list-item-action svg {
+  width: 16px;
+  height: 16px;
+  fill: #CCCCCC;
+}
+
+/* List Section */
+.list-section {
+  padding: 16px;
+}
+.list-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Courses */
+.courses-section {
+  background: none; margin: 0;
+  padding: 16px;
+}
+.course-list {
+  display: flex; flex-direction: column;
+  row-gap: 20px;
+}
+.course-card {
+  display: flex; gap: 12px; align-items: flex-start; cursor: pointer;
+  padding: 0; transition: opacity 0.2s;
+  background: transparent;
+  border: none;
+  margin-bottom: 0 !important;
+}
+.course-card:active { opacity: 0.7; }
+
+/* ── 课程海报组件 (营销质感) ── */
+.course-poster {
+  width: 68px; height: 68px;
+  border-radius: 8px; flex-shrink: 0;
+  position: relative; overflow: hidden;
+  background-size: cover; background-position: center;
+  margin-right: 0;
+}
+.course-poster::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.2) 70%, transparent 100%);
+  z-index: 1;
+}
+.course-poster-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; z-index: 0;
+}
+.course-poster-badge {
+  position: absolute; top: 6px; left: 6px; z-index: 3;
+  background: #1A1A1A;
+  color: #D4AF37;
+  font-size: 8px; font-weight: 700;
+  padding: 3px 6px; border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  display: flex; align-items: center; gap: 2px;
+}
+.course-poster-badge svg {
+  width: 8px; height: 8px; fill: #D4AF37;
+}
+.course-poster-content {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  padding: 6px 8px 8px;
+}
+.course-poster-title {
+  font-size: 11px; font-weight: 800; color: #fff;
+  line-height: 1.2; margin-bottom: 2px;
+  letter-spacing: 0.5px;
+}
+.course-poster-sub {
+  font-size: 8px; color: #E5C158;
+  line-height: 1.2;
+  opacity: 0.9;
+}
+.course-info {
+  flex:1; min-width:0;
+  display: flex; flex-direction: column; justify-content: space-between;
+  height: 68px;
+}
+.course-type { font-size:10px; color:var(--text-hint); margin-bottom:4px; }
+.course-name { font-size:13px; font-weight:600; color:var(--text-main); line-height:1.4; }
+.course-price { font-size:14px; font-weight:700; color:var(--red); }
+.course-price-orig { font-size:11px; color:var(--text-hint); text-decoration:line-through; margin-left:5px; }
+
+/* ============================================================
+   DISCOVER PAGE
+   ============================================================ */
+.sticky-header-group {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.discover-header {
+  background: linear-gradient(155deg, #C8202E 0%, #D42B3A 55%, #E04050 100%);
+  padding: 60px 20px 20px;
+}
+.discover-title { color:#fff; font-size:20px; font-weight:700; margin-bottom:14px; }
+.discover-search {
+  display:flex; align-items:center; justify-content:flex-start;
+  background:#fff; border-radius:22px; padding:0 16px; height:36px;
+  box-sizing:border-box;
+}
+.discover-search-icon {
+  display:flex; align-items:center; justify-content:center;
+  margin:0 8px 0 0; flex-shrink:0; line-height:0;
+}
+.discover-search-icon svg { display:block; }
+.discover-search-text {
+  display:flex; align-items:center;
+  color:var(--text-hint); font-size:14px;
+  flex:1; height:100%;
+}
+.filter-row {
+  background: var(--white);
+  padding: 12px 16px;
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  align-items: center;
+  gap: 20px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink:0; font-size:14px; padding:0; margin:0;
+  border-radius:0; border:none; background:none;
+  color:var(--text-sub); cursor:pointer; transition:color 0.2s;
+  position:relative; line-height:1.5;
+}
+.filter-chip.active {
+  color:var(--brand); font-weight:600;
+}
+.filter-chip.active::after {
+  content:''; position:absolute; bottom:-2px; left:50%; transform:translateX(-50%);
+  width:16px; height:3px; border-radius:2px; background:var(--brand);
+}
+
+.discover-list { padding:12px 16px; display:flex; flex-direction:column; gap:12px; }
+.disc-card {
+  background:var(--white); border-radius:var(--radius);
+  padding:14px; box-shadow:0 4px 16px rgba(0,0,0,0.06); cursor:pointer;
+  display:flex; gap:14px; align-items:flex-start; transition:transform 0.15s;
+}
+.disc-card:active { transform:scale(0.98); }
+
+/* ── 发现页海报组件 (营销质感) ── */
+.disc-poster {
+  width: 100px; height: 76px;
+  border-radius: 8px; flex-shrink: 0;
+  position: relative; overflow: hidden;
+}
+.disc-poster::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.2) 70%, transparent 100%);
+  z-index: 1;
+}
+.disc-poster-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; z-index: 0;
+}
+.disc-poster-badge {
+  position: absolute; top: 6px; left: 6px; z-index: 3;
+  background: #1A1A1A;
+  color: #D4AF37;
+  font-size: 8px; font-weight: 700;
+  padding: 3px 6px; border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  display: flex; align-items: center; gap: 2px;
+}
+.disc-poster-badge svg {
+  width: 8px; height: 8px; fill: #D4AF37;
+}
+.disc-poster-content {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  padding: 6px 8px 8px;
+}
+.disc-poster-title {
+  font-size: 12px; font-weight: 800; color: #fff;
+  line-height: 1.15; margin-bottom: 3px;
+  letter-spacing: 0.5px;
+}
+.disc-poster-sub {
+  font-size: 9px; color: #E5C158;
+  line-height: 1.2;
+  opacity: 0.9;
+}
+
+.disc-info { flex:1; min-width:0; }
+.disc-tags { display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap; }
+.disc-tag { font-size:10px; font-weight:600; padding:3px 8px; border-radius:4px; border:none; }
+.tag-hot { background:#FFF0F1; color:#CD252B; }
+.tag-new { background:#FFF8E6; color:#B8760A; }
+.tag-free { background:#E6F9F2; color:#007A45; }
+.disc-name { font-size:15px; font-weight:600; color:var(--text-main); line-height:1.4; margin-bottom:4px; }
+.disc-author { font-size:11px; color:var(--text-hint); margin-bottom:8px; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; }
+.disc-meta { display:flex; align-items:center; justify-content:space-between; }
+.disc-meta-left { display:flex; gap:10px; align-items:center; }
+.disc-stat { font-size:11px; color:var(--text-hint); }
+.disc-price { font-weight:700; color:var(--brand); }
+.disc-price::before { content:'¥ '; font-size:12px; font-weight:500; }
+.disc-price-num { font-size:18px; }
+
+/* ============================================================
+   DETAIL PAGE
+   ============================================================ */
+.detail-back {
+  position: sticky; top: 0;
+  width: 100%;
+  z-index: 99;
+  background: #FFFFFF;
+  display: flex; align-items: center; gap: 10px;
+  padding: 50px 16px 12px 12px;
+  border-bottom: 1px solid #F0F0F0;
+}
+.back-btn {
+  font-size: 28px; cursor: pointer; color: #D42B3A;
+  line-height: 1; padding: 2px 10px 2px 4px; border-radius: 4px;
+  transition: opacity 0.15s; flex-shrink: 0;
+}
+.back-btn:active { opacity: 0.5; }
+.detail-back-title {
+  font-size: 16px; font-weight: 600; color: var(--text-main);
+  flex: 1; text-align: center;
+  /* 右侧留出和back-btn等宽的空间，让标题真正居中 */
+  margin-right: 36px;
+}
+
+.detail-hero {
+  width:100%; height:180px;
+  background:linear-gradient(135deg, #C0392B 0%, #E8354A 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-size:20px; font-weight:700; color:#fff; text-align:center; padding:20px;
+  margin-top: 0;
+}
+.detail-body { padding:0 16px 120px; }
+.detail-info { background:var(--white); border-radius:var(--radius); padding:16px; margin:12px 0; }
+.detail-course-name { font-size:18px; font-weight:700; color:var(--text-main); line-height:1.4; margin-bottom:6px; }
+.detail-author { font-size:13px; color:var(--text-sub); margin-bottom:14px; display:flex; align-items:center; gap:6px; }
+.stats-row { display:flex; gap:0; margin-bottom:14px; }
+.stat-item { flex:1; text-align:center; border-right:1px solid var(--border); }
+.stat-item:last-child { border-right:none; }
+.stat-num { font-size:18px; font-weight:700; color:var(--text-main); }
+.stat-label { font-size:10px; color:var(--text-hint); margin-top:2px; }
+.detail-desc { font-size:13px; color:var(--text-sub); line-height:1.7; }
+
+.detail-tabs { display:flex; border-bottom:1px solid var(--border); margin-bottom:12px; }
+.detail-tab { flex:1; text-align:center; padding:12px 0; font-size:14px; color:var(--text-hint); cursor:pointer; font-weight:500; }
+.detail-tab.active { color:var(--red); border-bottom:2px solid var(--red); }
+
+.catalog-item {
+  background:var(--white); border-radius:10px; padding:12px 14px;
+  margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+}
+.catalog-item:active { opacity:0.7; }
+.cat-date { font-size:11px; color:var(--red); font-weight:700; margin-right:8px; flex-shrink:0; }
+.cat-title { font-size:13px; color:var(--text-main); font-weight:500; flex:1; line-height:1.4; }
+.cat-meta { font-size:11px; color:var(--text-hint); text-align:right; flex-shrink:0; }
+
+.highlights-section { background:var(--white); border-radius:var(--radius); padding:14px 16px; margin-bottom:12px; }
+.highlight-item { display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+.highlight-item:last-child { border-bottom:none; }
+.highlight-num {
+  width:22px; height:22px; border-radius:6px;
+  background:var(--red-light); color:var(--red);
+  font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.highlight-text { font-size:13px; color:var(--text-sub); line-height:1.5; }
+
+.buy-bar {
+  position:sticky; bottom:0;
+  background:var(--white); border-top:1px solid var(--border);
+  padding:10px 16px 20px; display:flex; gap:10px; align-items:center;
+}
+.buy-price { flex:1; }
+.price-now { font-size:22px; font-weight:700; color:var(--red); }
+.price-orig { font-size:12px; color:var(--text-hint); text-decoration:line-through; }
+.btn-trial {
+  flex:1; padding:12px 0; border-radius:24px;
+  border:1.5px solid var(--red); color:var(--red);
+  font-size:14px; font-weight:600; cursor:pointer; text-align:center; background:transparent;
+}
+.btn-buy {
+  flex:1.5; padding:12px 0; border-radius:24px;
+  background:var(--red); color:#fff; font-size:14px; font-weight:600;
+  cursor:pointer; text-align:center; border:none;
+  box-shadow:0 4px 12px rgba(232,25,44,0.35); transition:all 0.2s;
+}
+.btn-buy:active { transform:scale(0.97); }
+
+/* ============================================================
+   ORDER PAGE
+   ============================================================ */
+.order-header {
+  position: sticky; top: 0; z-index: 99;
+  background: #FFFFFF;
+  padding: 50px 16px 12px 12px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid #F0F0F0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.order-title { font-size: 16px; font-weight: 700; color: var(--text-main); flex:1; text-align:center; margin-right:36px; }
+.order-section {
+  background:var(--white); margin:12px 16px 0; border-radius:var(--radius);
+  overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.order-section-title {
+  font-size:13px; font-weight:600; color:var(--text-main);
+  padding:12px 16px; border-bottom:1px solid var(--border); background:#FAFAFA;
+}
+.order-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 16px; border-bottom:1px solid var(--border);
+}
+.order-row:last-child { border-bottom:none; }
+.order-row-label { font-size:13px; color:var(--text-sub); }
+.order-row-val { font-size:13px; color:var(--text-main); font-weight:500; }
+.order-row-val.red { color:var(--red); }
+
+.order-product { display:flex; gap:12px; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); }
+.order-product-thumb {
+  width:52px; height:52px; border-radius:10px;
+  background:linear-gradient(135deg, #C0392B, #E8354A);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; color:#fff; text-align:center; line-height:1.3; flex-shrink:0;
+}
+.order-product-name { font-size:14px; font-weight:600; color:var(--text-main); margin-bottom:3px; }
+.order-product-sub { font-size:12px; color:var(--text-hint); }
+
+.pay-method-row {
+  display:flex; align-items:center; gap:10px;
+  padding:13px 16px; border-bottom:1px solid var(--border); cursor:pointer;
+}
+.pay-method-row:last-child { border-bottom:none; }
+.pay-method-icon { width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.pay-icon-wechat { background:#E7F6EC; }
+.pay-icon-alipay { background:#E8F4FF; }
+.pay-icon-balance { background:var(--red-light); }
+.pay-method-name { flex:1; font-size:13px; color:var(--text-main); font-weight:500; }
+.pay-method-sub { font-size:11px; color:var(--text-hint); }
+.radio-dot { width:18px; height:18px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; }
+.radio-dot.selected { border-color:var(--red); background:var(--red); }
+.radio-dot.selected::after { content:''; width:6px; height:6px; border-radius:50%; background:#fff; }
+
+.price-row { display:flex; justify-content:space-between; padding:9px 16px; }
+.price-row-label { font-size:13px; color:var(--text-sub); }
+.price-row-val { font-size:13px; color:var(--text-main); }
+.price-row.total { border-top:1px solid var(--border); margin-top:4px; }
+.price-row.total .price-row-label { font-weight:600; color:var(--text-main); }
+.price-row.total .price-row-val { font-weight:700; color:var(--red); font-size:16px; }
+
+.order-footer {
+  position:sticky; bottom:0; background:var(--white); border-top:1px solid var(--border);
+  padding:12px 16px 24px; display:flex; align-items:center; justify-content:space-between;
+}
+.order-total-label { font-size:13px; color:var(--text-sub); }
+.order-total-price { font-size:22px; font-weight:700; color:var(--red); }
+.btn-pay {
+  background:var(--red); color:#fff; border:none;
+  font-size:16px; font-weight:600; border-radius:26px;
+  padding:13px 32px; cursor:pointer; box-shadow:0 4px 14px rgba(232,25,44,0.4); transition:all 0.2s;
+}
+.btn-pay:active { transform:scale(0.97); }
+
+/* ============================================================
+   SUCCESS PAGE
+   ============================================================ */
+.success-page {
+  padding: 60px 16px 80px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.success-icon {
+  width:76px; height:76px; border-radius:50%;
+  background:linear-gradient(135deg, #C0392B, #E8354A);
+  display:flex; align-items:center; justify-content:center; font-size:34px;
+  margin:40px auto 14px; box-shadow:0 8px 24px rgba(232,25,44,0.35);
+}
+}
+.success-title { font-size:20px; font-weight:700; color:var(--text-main); margin-bottom:6px; text-align:center; }
+.success-sub { font-size:13px; color:var(--text-hint); text-align:center; margin-bottom:28px; }
+.success-card {
+  width:100%; background:var(--white); border-radius:var(--radius);
+  box-shadow:0 2px 10px rgba(0,0,0,0.08); margin-bottom:16px; overflow:hidden;
+}
+.success-product { display:flex; gap:12px; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); }
+.success-thumb {
+  width:48px; height:48px; border-radius:10px;
+  background:linear-gradient(135deg, #C0392B, #E8354A);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; color:#fff; text-align:center; line-height:1.3; flex-shrink:0;
+}
+.check-label { font-size:11px; background:var(--green-light); color:var(--green); font-weight:600; padding:2px 7px; border-radius:5px; display:inline-block; }
+.action-item {
+  background:var(--white); border-radius:12px; padding:14px 16px;
+  display:flex; align-items:center; gap:12px; cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05); transition:transform 0.15s; width:100%; margin-bottom:10px;
+}
+.action-item:active { transform:scale(0.98); }
+.action-icon { width:38px; height:38px; border-radius:10px; background:var(--red-light); display:flex; align-items:center; justify-content:center; font-size:18px; }
+.action-label { font-size:14px; font-weight:600; color:var(--text-main); }
+.action-sub { font-size:11px; color:var(--text-hint); margin-top:1px; }
+.action-arrow { font-size:14px; color:var(--text-hint); margin-left:auto; }
+
+/* ============================================================
+   MSG PAGE
+   ============================================================ */
+.msg-header {
+  background:#FFFFFF; position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:60px 20px 12px;
+  border-bottom:1px solid #F0F0F0;
+  box-shadow:0 1px 3px rgba(0,0,0,0.02);
+}
+.msg-header-title { font-size:20px; font-weight:700; color:var(--text-main); }
+.msg-header-action { font-size:13px; color:var(--red); cursor:pointer; }
+.msg-list { padding:0; display:flex; flex-direction:column; }
+.msg-item-row {
+  display:flex; align-items:center; padding:16px 20px;
+  background:transparent; cursor:pointer; transition:background 0.15s;
+  border-bottom:1px solid var(--border);
+}
+.msg-item-row:last-child { border-bottom:none; }
+.msg-item-row:active { background:#F5F5F7; }
+.msg-icon-wrap {
+  width:44px; height:44px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.msg-icon-wrap svg { display:block; }
+.msg-icon-pink { background:#FFE8E8; }
+.msg-icon-pink svg { fill:#CD252B; }
+.msg-icon-blue { background:#E3F2FD; }
+.msg-icon-blue svg { fill:#1976D2; }
+.msg-icon-purple { background:#F3E5F5; }
+.msg-icon-purple svg { fill:#7B1FA2; }
+.msg-icon-green { background:#E8F5E9; }
+.msg-icon-green svg { fill:#388E3C; }
+.msg-text-wrap {
+  display:flex; flex-direction:column;
+  margin-left:16px; flex:1;
+}
+.msg-text-title { font-size:16px; font-weight:500; color:#222; display:flex; align-items:center; }
+.msg-text-sub { font-size:13px; color:#999; margin-top:4px; }
+.msg-badge {
+  background:var(--red); color:#fff; font-size:10px; font-weight:700;
+  padding:2px 6px; border-radius:10px; margin-left:8px; line-height:1;
+}
+
+/* ============================================================
+   MINE PAGE
+   ============================================================ */
+.mine-header {
+  background:linear-gradient(155deg, #C8202E 0%, #D42B3A 55%, #E04050 100%);
+  padding:60px 20px 24px; position:relative; overflow:hidden;
+}
+.mine-header::before { content:''; position:absolute; width:200px; height:200px; background:rgba(255,255,255,0.06); border-radius:50%; top:-80px; right:-40px; }
+.mine-header-row { display:flex; align-items:center; justify-content:space-between; }
+.mine-avatar { width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,255,255,0.35); overflow:hidden; }
+.mine-avatar img { width:100%; height:100%; object-fit:cover; }
+.mine-user-info { display:flex; align-items:center; gap:12px; }
+.mine-name { color:#fff; font-size:16px; font-weight:600; }
+.mine-header-icons { display:flex; gap:16px; }
+.mine-header-icon { position:relative; display:flex; align-items:center; justify-content:center; }
+.mine-header-icon svg { width:22px; height:22px; fill:#fff; }
+.mine-header-dot { position:absolute; top:-2px; right:-2px; width:6px; height:6px; background:var(--red); border-radius:50%; border:1px solid #fff; }
+
+/* VIP横幅 */
+.mine-vip-banner {
+  margin:-8px 16px 12px; position:relative; z-index:3;
+  background:linear-gradient(135deg, #F3D09F 0%, #D1A362 50%, #B8963C 100%);
+  border-radius:12px; padding:14px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
+.mine-vip-left { display:flex; flex-direction:column; }
+.mine-vip-title { font-size:13px; font-weight:600; color:#1A1A1A; }
+.mine-vip-sub { font-size:15px; font-weight:700; color:#222; margin-top:2px; }
+.mine-vip-btn {
+  background:rgba(255,255,255,0.25); border-radius:16px;
+  padding:6px 12px; font-size:12px; font-weight:600; color:#1A1A1A;
+  display:flex; align-items:center; gap:4px;
+}
+
+/* 资产与增长区 */
+.mine-card {
+  background:var(--white); border-radius:var(--radius); margin:0 16px 12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;
+}
+.mine-card-item {
+  display:flex; align-items:center; padding:14px 16px;
+  border-bottom:1px dashed #eee; cursor:pointer; transition:background 0.15s;
+}
+.mine-card-item:last-child { border-bottom:none; }
+.mine-card-item:active { background:var(--bg); }
+.mine-card-icon {
+  width:32px; height:32px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center; margin-right:12px;
+}
+.mine-card-icon svg { width:18px; height:18px; }
+.mine-card-label { flex:1; font-size:14px; font-weight:500; color:var(--text-main); }
+.mine-card-value { font-size:13px; color:var(--text-hint); display:flex; align-items:center; gap:2px; }
+.mine-card-arrow { font-size:12px; color:var(--text-hint); margin-left:4px; }
+
+/* 服务与工具区 */
+.mine-service-card { margin-bottom:80px; }
+.icon-orange { background:#FFF3DC; }
+.icon-orange svg { fill:#F5A623; }
+.icon-blue { background:#E3F2FD; }
+.icon-blue svg { fill:#1976D2; }
+.icon-green { background:#E6F9F2; }
+.icon-green svg { fill:#00B96B; }
+.icon-red { background:#FFF0F1; }
+.icon-red svg { fill:var(--red); }
+.icon-purple { background:#F3E5F5; }
+.icon-purple svg { fill:#7B1FA2; }
+
+/* 底部技术支持 */
+.mine-footer {
+  text-align:center; padding:16px 0 20px;
+  font-size:11px; color:var(--text-hint);
+}
+
+/* ── Overlay / Share sheet ── */
+.overlay {
+  position:absolute; inset:0; z-index:50; display:none;
+  background:rgba(0,0,0,0.5); align-items:flex-end;
+  border-radius:42px; overflow:hidden;
+}
+.overlay.show { display:flex; animation:fadeIn 0.2s; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.sheet {
+  width:100%; background:var(--white);
+  border-radius:24px 24px 0 0; padding:20px 20px 32px;
+  animation:slideUp 0.3s ease;
+}
+@keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+.sheet-handle { width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 16px; }
+.sheet-title { font-size:16px; font-weight:700; color:var(--text-main); margin-bottom:14px; text-align:center; }
+.share-grid { display:flex; gap:0; justify-content:space-around; margin-bottom:20px; }
+.share-item { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
+.share-icon { width:50px; height:50px; border-radius:14px; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:24px; }
+.share-label { font-size:11px; color:var(--text-sub); }
+.btn-cancel { width:100%; padding:13px; border-radius:20px; border:1px solid var(--border); font-size:15px; color:var(--text-sub); background:var(--bg); cursor:pointer; font-weight:500; margin-top:8px; }
+
+/* Gradients */
+.grad-1 { background:linear-gradient(135deg, #C0392B, #E8354A); }
+.grad-2 { background:linear-gradient(135deg, #E84C1F, #8B3A00); }
+.grad-3 { background:linear-gradient(135deg, #1A6FFF, #0A3FAA); }
+.grad-4 { background:linear-gradient(135deg, #8B1FA0, #4A0066); }
+.grad-5 { background:linear-gradient(135deg, #1E8C5A, #0A4A2A); }
+.grad-6 { background:linear-gradient(135deg, #C8871A, #7A4500); }
+
+/* ── 真机响应式：在手机上打开直接全屏适配 ── */
+@media (max-width: 480px) {
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .phone-wrap {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+  .phone-notch { display: none !important; }
+  .phone-screen {
+    border-radius: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  .bottom-nav {
+    position: fixed !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+  }
+  .page {
+    height: calc(100vh - 64px);
+    height: calc(100dvh - 64px);
+  }
+  #skeleton-screen { border-radius: 0 !important; }
+  #search-overlay { border-radius: 0 !important; }
+}
+
+/* ── 桌面端小视窗：缩放手机壳适配 ── */
+@media (min-width: 481px) and (max-height: 900px) {
+  body { align-items: center; }
+}
+
+/* ============================================================
+   SEARCH OVERLAY
+   ============================================================ */
+#search-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #FFFFFF;
+  z-index: 1000;
+  display: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+#search-overlay.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+.search-overlay-header {
+  padding: 60px 16px 16px;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.search-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #F5F5F5;
+  border-radius: 18px;
+  padding: 0 12px;
+  height: 36px;
+}
+.search-input-wrap svg {
+  width: 16px; height: 16px;
+  fill: #AAAAAA;
+  margin-right: 8px;
+}
+.search-input-wrap input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #1A1A1A;
+  outline: none;
+  caret-color: #D42B3A;
+  -webkit-tap-highlight-color: transparent;
+}
+.search-input-wrap input::placeholder {
+  color: #AAAAAA;
+}
+.search-input-wrap input::-webkit-search-cancel-button {
+  display: none;
+}
+.search-cancel-btn {
+  font-size: 16px;
+  color: #D42B3A;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.search-body {
+  padding: 16px;
+  overflow-y: auto;
+  height: calc(100% - 112px);
+}
+.search-section {
+  margin-bottom: 24px;
+}
+.search-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.search-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+.search-clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #AAAAAA;
+  cursor: pointer;
+}
+.search-clear-btn svg {
+  width: 14px; height: 14px;
+  fill: #AAAAAA;
+}
+.search-history-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.search-history-tag {
+  padding: 6px 14px;
+  background: #F5F5F5;
+  border-radius: 14px;
+  font-size: 13px;
+  color: #666666;
+  cursor: pointer;
+}
+.search-hot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.search-hot-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+.search-hot-rank {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+.search-hot-rank.top-1 { background: #E62C2C; color: #FFFFFF; }
+.search-hot-rank.top-2 { background: #FF6B00; color: #FFFFFF; }
+.search-hot-rank.top-3 { background: #FFB800; color: #FFFFFF; }
+.search-hot-rank.normal { background: #F5F5F5; color: #666666; }
+.search-hot-text {
+  font-size: 14px;
+  color: #1A1A1A;
+}
+.search-hot-badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #FFF0F0;
+  color: #D42B3A;
+  margin-left: 8px;
+}
+
+/* 清空输入图标 */
+.search-clear-input {
+  width: 16px; height: 16px;
+  fill: #CCCCCC;
+  cursor: pointer;
+  display: none;
+  margin-left: 8px;
+}
+.search-clear-input.show { display: block; }
+
+/* 搜索结果样式 */
+.search-results {
+  display: none;
+}
+.search-results.show { display: block; }
+.search-result-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  cursor: pointer;
+}
+.search-result-poster {
+  width: 80px; height: 60px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #C0392B, #E8354A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+}
+.search-result-info {
+  flex: 1;
+}
+.search-result-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 4px;
+}
+.search-result-meta {
+  font-size: 12px;
+  color: #666666;
+  margin-bottom: 6px;
+}
+.search-result-price {
+  font-size: 13px;
+  color: #D42B3A;
+  font-weight: 600;
+}
+
+/* 确认弹窗 */
+#confirm-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#confirm-overlay.show { display: flex; }
+.confirm-dialog {
+  width: 70%;
+  max-width: 280px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 20px;
+  transform: scale(0.9);
+  opacity: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+#confirm-overlay.show .confirm-dialog {
+  transform: scale(1);
+  opacity: 1;
+}
+.confirm-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1A1A1A;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.confirm-buttons {
+  display: flex;
+  gap: 12px;
+}
+.confirm-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  cursor: pointer;
+}
+.confirm-btn-cancel {
+  background: #F5F5F5;
+  color: #666666;
+}
+.confirm-btn-confirm {
+  background: #E62C2C;
+  color: #FFFFFF;
+}
+
+/* ── 二级页面通用样式 ── */
+.sub-page-header {
+  display: flex; align-items: center;
+  padding: 50px 16px 14px 12px;
+  background: #fff;
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 1px solid #F2F2F2;
+}
+.sub-back-btn {
+  display: flex; align-items: center;
+  color: #D42B3A; cursor: pointer;
+  font-size: 28px; line-height: 1;
+  flex-shrink: 0; padding: 2px 10px 2px 4px;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+}
+.sub-back-btn:active { opacity: 0.5; }
+.sub-page-title {
+  font-size: 16px; font-weight: 600; color: #1A1A1A;
+  flex: 1; text-align: center; margin-right: 44px;
+}
+
+/* 空状态 */
+.empty-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px 20px 40px;
+}
+.empty-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: #F5F5F7;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+}
+.empty-icon svg { width: 36px; height: 36px; fill: #CCCCCC; }
+.empty-title { font-size: 15px; font-weight: 600; color: #AAAAAA; margin-bottom: 6px; }
+.empty-hint { font-size: 13px; color: #CCCCCC; text-align: center; line-height: 1.6; }
+
+/* 消息详情页内容 */
+.msg-detail-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 16px; border-bottom: 1px solid #F5F5F5;
+}
+.msg-detail-avatar {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.msg-detail-avatar svg { width: 22px; height: 22px; fill: #fff; }
+.msg-detail-body { flex: 1; min-width: 0; }
+.msg-detail-title { font-size: 14px; font-weight: 600; color: #1A1A1A; margin-bottom: 4px; }
+.msg-detail-text { font-size: 13px; color: #666; line-height: 1.5; margin-bottom: 4px; }
+.msg-detail-time { font-size: 11px; color: #AAAAAA; }
+
+/* 我的二级页面 — 列表项 */
+.sub-list-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-bottom: 1px solid #F5F5F5;
+  cursor: pointer; background: #fff;
+}
+.sub-list-item:active { background: #FAFAFA; }
+.sub-list-label { flex: 1; font-size: 14px; color: #1A1A1A; }
+.sub-list-arrow { font-size: 14px; color: #CCCCCC; }
+
+
+  to   { transform: translateX(100%); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+  <div class="phone-notch"></div>
+  <div class="phone-screen" id="app">
+
+    <!-- 骨架屏 -->
+    <div id="skeleton-screen">
+      <div class="sk-hd">
+        <div class="sk-brand-row">
+          <div class="sk-logo skeleton"></div>
+          <div class="sk-brand-name skeleton"></div>
+        </div>
+        <div class="sk-search-bar skeleton"></div>
+      </div>
+      <div class="sk-body">
+        <div class="sk-banner skeleton"></div>
+        <div class="sk-market skeleton"></div>
+        <div class="sk-list-item">
+          <div class="sk-thumb skeleton"></div>
+          <div class="sk-lines"><div class="sk-line-lg skeleton"></div><div class="sk-line-sm skeleton"></div></div>
+        </div>
+        <div class="sk-list-item">
+          <div class="sk-thumb skeleton"></div>
+          <div class="sk-lines"><div class="sk-line-lg skeleton"></div><div class="sk-line-sm skeleton"></div></div>
+        </div>
+        <div class="sk-list-item">
+          <div class="sk-thumb skeleton"></div>
+          <div class="sk-lines"><div class="sk-line-lg skeleton"></div><div class="sk-line-sm skeleton"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar" id="global-status-bar">
+      <span class="status-time">10:36</span>
+      <div class="status-icons"><span><svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 11.97-4.97 16.94 0l2-2C16.93 3.93 8.93 3.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg></span><span style="font-size:12px">WiFi</span><span><svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM13 18h-2v-2h2v2zm0-4h-2V9h2v5z"/></svg></span><span style="font-size:12px;margin-left:2px">89</span></div>
+    </div>
+
+    <!-- ======================================
+         PAGE: 首页
+         ====================================== -->
+    <div class="page active" id="page-home">
+      <div class="content-area">
+
+        <div class="home-header">
+          <div class="home-header-sticky-bg"></div>
+          <!-- 品牌标题行 -->
+          <div class="brand-title-row">
+            <!-- 圆梦教育 SVG Logo -->
+            <img src="data:image/png;base64,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" class="brand-logo-icon" alt="圆梦教育" style="border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.18);">
+            <span class="brand-name-text">圆梦教育</span>
+          </div>
+          <!-- 搜索栏 -->
+          <div class="search-bar" onclick="openSearch()">
+            <img src="data:image/png;base64,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" class="search-logo-mini" alt="圆梦" style="border-radius:50%;border:1.5px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);">
+            <span class="search-icon"><svg style="width:15px;height:15px;fill:rgba(255,255,255,0.7)" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></span>
+            <span class="search-text">搜索课程、研报、直播...</span>
+            <span class="search-btn-pill">搜索</span>
+          </div>
+        </div>
+
+        <!-- 红色渐变过渡区（header红色 → 白色背景，自然融合） -->
+        <div class="home-gradient-bg">
+
+        <!-- 直播 Banner 轮播 -->
+        <div class="banner-wrap" id="bannerWrap">
+          <div class="banner-track" id="bannerTrack">
+            <!-- Slide 1: 正在直播 -->
+            <div class="banner-slide">
+              <img class="banner-slide-img" src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=80">
+              <div class="banner-slide-overlay"></div>
+              <div class="banner-content">
+                <div class="banner-live-badge"><div class="banner-live-dot"></div>直播中</div>
+                <div class="banner-title">陈明教授：财报解读直播间</div>
+                <div class="banner-sub">前高盛分析师 · 1,234人正在观看</div>
+              </div>
+              <div class="banner-cta">立即进入</div>
+            </div>
+            <!-- Slide 2: 即将直播 -->
+            <div class="banner-slide">
+              <img class="banner-slide-img" src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=800&q=80">
+              <div class="banner-slide-overlay"></div>
+              <div class="banner-content">
+                <div class="banner-live-badge" style="background:rgba(255,255,255,0.18);color:#fff"><div class="banner-live-dot" style="background:#F5A623"></div>今晚 20:00</div>
+                <div class="banner-title">2026下半年宏观经济研判</div>
+                <div class="banner-sub">首席经济学家 · 862人已预约</div>
+              </div>
+              <div class="banner-cta" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.5)">预约提醒</div>
+            </div>
+            <!-- Slide 3: 回放 -->
+            <div class="banner-slide">
+              <img class="banner-slide-img" src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=800&q=80">
+              <div class="banner-slide-overlay"></div>
+              <div class="banner-content">
+                <div class="banner-live-badge" style="background:rgba(0,0,0,0.4);color:#fff">回放可看</div>
+                <div class="banner-title">私募基金投资策略路演</div>
+                <div class="banner-sub">红杉前合伙人 · 3,562人已观看</div>
+              </div>
+              <div class="banner-cta" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.5)">看回放</div>
+            </div>
+          </div>
+          <div class="banner-dots">
+            <div class="banner-dot active" id="dot0"></div>
+            <div class="banner-dot" id="dot1"></div>
+            <div class="banner-dot" id="dot2"></div>
+          </div>
+        </div>
+
+        <!-- Market -->
+        <div class="market-section">
+          <div class="section-header">
+            <div class="section-title"><div class="live-dot"></div>市场行情</div>
+            <span class="section-more">实时</span>
+          </div>
+          <div class="market-grid">
+            <div class="market-item">
+              <div class="market-name">上证指数</div>
+              <div class="market-val">3,312</div>
+              <div class="market-chg up">▲ +1.23%</div>
+            </div>
+            <div class="market-item">
+              <div class="market-name">深证成指</div>
+              <div class="market-val">10,658</div>
+              <div class="market-chg up">▲ +0.87%</div>
+            </div>
+            <div class="market-item">
+              <div class="market-name">纳斯达克</div>
+              <div class="market-val">17,834</div>
+              <div class="market-chg down">▼ -0.34%</div>
+            </div>
+            <div class="market-item">
+              <div class="market-name">黄金</div>
+              <div class="market-val">2,387</div>
+              <div class="market-chg up">▲ +0.61%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stocks ticker -->
+        <div class="stocks-marquee-wrap">
+          <div class="marquee-label">热门个股</div>
+          <div class="stocks-marquee">
+            <div class="stock-chip"><span class="stock-chip-name">贵州茅台</span><span class="stock-chip-price">1,682.00</span><span class="stock-chip-chg up">+1.2%</span></div>
+            <div class="stock-chip"><span class="stock-chip-name">宁德时代</span><span class="stock-chip-price">218.50</span><span class="stock-chip-chg up">+2.1%</span></div>
+            <div class="stock-chip"><span class="stock-chip-name">中国平安</span><span class="stock-chip-price">48.32</span><span class="stock-chip-chg down">-0.6%</span></div>
+            <div class="stock-chip"><span class="stock-chip-name">比亚迪</span><span class="stock-chip-price">312.40</span><span class="stock-chip-chg up">+3.4%</span></div>
+            <div class="stock-chip"><span class="stock-chip-name">招商银行</span><span class="stock-chip-price">36.88</span><span class="stock-chip-chg down">-0.2%</span></div>
+            <div class="stock-chip"><span class="stock-chip-name">贵州茅台</span><span class="stock-chip-price">1,682.00</span><span class="stock-chip-chg up">+1.2%</span></div>
+            <div class="stock-chip"><span class="stock-chip-name">宁德时代</span><span class="stock-chip-price">218.50</span><span class="stock-chip-chg up">+2.1%</span></div>
+            <div class="stock-chip"><span class="stock-chip-name">中国平安</span><span class="stock-chip-price">48.32</span><span class="stock-chip-chg down">-0.6%</span></div>
+            <div class="stock-chip"><span class="stock-chip-name">比亚迪</span><span class="stock-chip-price">312.40</span><span class="stock-chip-chg up">+3.4%</span></div>
+            <div class="stock-chip"><span class="stock-chip-name">招商银行</span><span class="stock-chip-price">36.88</span><span class="stock-chip-chg down">-0.2%</span></div>
+          </div>
+        </div>
+
+        </div><!-- end home-gradient-bg -->
+
+        <!-- 沉浸式内容大容器 -->
+        <div class="main-content-wrapper">
+          <!-- 双层联合吸顶容器 -->
+          <div class="sticky-tabs-group">
+            <!-- 一级分类导航 -->
+            <div class="cat-tabs">
+              <div class="cat-tab active" data-tab="all">全部</div>
+              <div class="cat-tab" data-tab="course">系列课</div>
+              <div class="cat-tab" data-tab="live">直播</div>
+              <div class="cat-tab" data-tab="report">研报</div>
+              <div class="cat-tab" data-tab="circle">圈子</div>
+            </div>
+            <!-- 二级分类导航 -->
+            <div class="recent-tabs-row">
+              <div class="recent-tab active">最近学习</div>
+              <div class="recent-tab">最近购买</div>
+            </div>
+          </div>
+
+          <!-- 内容面板容器 -->
+          <div class="tab-content-panels">
+            <!-- 全部面板 -->
+            <div class="tab-content-panel active" data-panel="all">
+              <div class="list-section">
+                <div class="list-container">
+                  <div class="list-item" onclick="showDetail('course','1')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">课程</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">读懂财报：从入门到精通</div>
+                      <div class="list-item-meta">VIP专享 · 48期 · 已学62%</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="list-item" onclick="showDetail('course','2')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">课程</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">宏观经济学 · 30讲精华版</div>
+                      <div class="list-item-meta">免费 · 已完成</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="list-item" onclick="showDetail('course','3')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1642790237520-f79f3b7d4d6c?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">课程</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">巴菲特投资思想精研</div>
+                      <div class="list-item-meta">VIP专享 · 已完结 · 已学18%</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="list-item" onclick="showDetail('course','4')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">课程</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">私募股权投资实战手册</div>
+                      <div class="list-item-meta">专栏 · 已完结 · ¥198</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="list-item" onclick="showDetail('report','1')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">研报</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">债券市场深度解析</div>
+                      <div class="list-item-meta">专栏 · 已完结 · ¥99</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- end 全部面板 -->
+
+            <!-- 系列课面板 -->
+            <div class="tab-content-panel" data-panel="course">
+              <div class="list-section">
+                <div class="list-container">
+                  <div class="list-item" onclick="showDetail('course','5')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1590650046871-92c887a609ee?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">课程</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">港股投资实战全攻略</div>
+                      <div class="list-item-meta">专栏 · 32期 · ¥149</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="list-item" onclick="showDetail('course','6')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">课程</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">量化交易策略入门到精通</div>
+                      <div class="list-item-meta">专栏 · 20期 · ¥199</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- end 系列课面板 -->
+
+            <!-- 直播面板 -->
+            <div class="tab-content-panel" data-panel="live">
+              <div class="list-section">
+                <div class="list-container">
+                  <div class="list-item" onclick="showDetail('live','1')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge" style="background:#E62C2C">直播</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">陈明教授：财报解读直播间</div>
+                      <div class="list-item-meta" style="color:#E62C2C">直播中 · 1,234人观看</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="list-item" onclick="showDetail('live','2')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1541462608143-6757c1d7c2cc?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">直播</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">2024下半年宏观经济研判</div>
+                      <div class="list-item-meta">今晚 20:00 · 862人已预约</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="list-item" onclick="showDetail('live','3')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1495020684909-0b77392aa0bf?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">直播</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">私募基金投资策略路演</div>
+                      <div class="list-item-meta">回放可用 · 3,562人已观看</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- end 直播面板 -->
+
+            <!-- 研报面板 -->
+            <div class="tab-content-panel" data-panel="report">
+              <div class="list-section">
+                <div class="list-container">
+                  <div class="list-item" onclick="showDetail('report','2')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1554224154-26032ffc0d07?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">研报</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">新能源汽车产业链深度报告</div>
+                      <div class="list-item-meta">PDF · 68页 · 会员专享</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="list-item" onclick="showDetail('report','3')">
+                    <div class="list-item-cover">
+                      <img class="list-item-cover-img" src="https://images.unsplash.com/photo-1618761713684-df7f5a8b7db4?auto=format&fit=crop&w=400&q=80">
+                      <div class="list-item-badge">研报</div>
+                    </div>
+                    <div class="list-item-info">
+                      <div class="list-item-title">半导体行业周期研判</div>
+                      <div class="list-item-meta">PDF · 42页 · 免费</div>
+                    </div>
+                    <div class="list-item-action">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- end 研报面板 -->
+
+            <!-- 圈子面板 -->
+            <div class="tab-content-panel" data-panel="circle">
+              <div class="circle-section">
+                <div class="circle-list">
+                  <div class="circle-card">
+                    <div class="circle-cover">
+                      <img class="circle-cover-img" src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=400&q=80">
+                      <div class="circle-cover-badge">圈子</div>
+                    </div>
+                    <div class="circle-info">
+                      <div class="circle-name">吴晓波频道·内参圈</div>
+                      <div class="circle-update">2026.04.13 10:32 更新</div>
+                    </div>
+                    <div class="circle-more">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="circle-card">
+                    <div class="circle-cover">
+                      <img class="circle-cover-img" src="https://images.unsplash.com/photo-1590650046871-92c887a609ee?auto=format&fit=crop&w=400&q=80">
+                      <div class="circle-cover-badge">圈子</div>
+                    </div>
+                    <div class="circle-info">
+                      <div class="circle-name">首席宏观策略组</div>
+                      <div class="circle-update">2026.04.12 18:45 更新</div>
+                    </div>
+                    <div class="circle-more">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="circle-card">
+                    <div class="circle-cover">
+                      <img class="circle-cover-img" src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=400&q=80">
+                      <div class="circle-cover-badge">圈子</div>
+                    </div>
+                    <div class="circle-info">
+                      <div class="circle-name">港股打新实战圈</div>
+                      <div class="circle-update">2026.04.10 09:20 更新</div>
+                    </div>
+                    <div class="circle-more">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                  <div class="circle-card">
+                    <div class="circle-cover">
+                      <img class="circle-cover-img" src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=400&q=80">
+                      <div class="circle-cover-badge">圈子</div>
+                    </div>
+                    <div class="circle-info">
+                      <div class="circle-name">价值投资私享会</div>
+                      <div class="circle-update">2026.04.08 14:30 更新</div>
+                    </div>
+                    <div class="circle-more">
+                      <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- end 圈子面板 -->
+          </div><!-- end tab-content-panels -->
+        </div><!-- end main-content-wrapper -->
+
+      </div><!-- end content-area -->
+    </div>
+
+    <!-- ======================================
+         PAGE: 发现
+         ====================================== -->
+    <div class="page" id="page-discover">
+      <div class="content-area">
+        <div class="sticky-header-group">
+          <div class="discover-header">
+            <div class="discover-title">发现好课</div>
+            <div class="discover-search"><span class="discover-search-icon"><svg style="width:16px;height:16px;fill:var(--text-hint)" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></span><span class="discover-search-text">搜索金融课程、研报...</span></div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-chip active">全部</div>
+            <div class="filter-chip">财报分析</div>
+            <div class="filter-chip">宏观经济</div>
+            <div class="filter-chip">股票投资</div>
+            <div class="filter-chip">债券市场</div>
+            <div class="filter-chip">私募股权</div>
+          </div>
+        </div>
+        <div class="discover-list">
+          <div class="disc-card" onclick="showDetail('course','1')">
+            <div class="disc-poster">
+              <img class="disc-poster-img" src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=80">
+              <div class="disc-poster-badge">
+                <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                首席私享
+              </div>
+              <div class="disc-poster-content">
+                <div class="disc-poster-title">穿越牛熊的底层逻辑</div>
+                <div class="disc-poster-sub">前高盛分析师 倾囊相授</div>
+              </div>
+            </div>
+            <div class="disc-info">
+              <div class="disc-tags"><span class="disc-tag tag-hot">热门</span><span class="disc-tag tag-new">限时折扣</span></div>
+              <div class="disc-name">读懂财报：从入门到精通</div>
+              <div class="disc-author">陈明教授 · CFA · 前高盛大中华区分析师</div>
+              <div class="disc-meta">
+                <div class="disc-meta-left"><span class="disc-stat"><svg style="width:12px;height:12px;fill:#F5A623;vertical-align:-1px" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> 4.9</span><span class="disc-stat">12,841人</span><span class="disc-stat">48期</span></div>
+                <span class="disc-price"><span class="disc-price-num">199</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="disc-card" onclick="showDetail('course','3')">
+            <div class="disc-poster">
+              <img class="disc-poster-img" src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=800&q=80">
+              <div class="disc-poster-badge">
+                <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                绝密内参
+              </div>
+              <div class="disc-poster-content">
+                <div class="disc-poster-title">巴菲特价值投资心法</div>
+                <div class="disc-poster-sub">清华经管 前研究员</div>
+              </div>
+            </div>
+            <div class="disc-info">
+              <div class="disc-tags"><span class="disc-tag tag-hot">热门</span></div>
+              <div class="disc-name">巴菲特投资思想精研</div>
+              <div class="disc-author">李华研究员 · 清华经管MBA</div>
+              <div class="disc-meta">
+                <div class="disc-meta-left"><span class="disc-stat"><svg style="width:12px;height:12px;fill:#F5A623;vertical-align:-1px" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> 4.8</span><span class="disc-stat">8,302人</span><span class="disc-stat">36期</span></div>
+                <span class="disc-price"><span class="disc-price-num">128</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="disc-card">
+            <div class="disc-poster">
+              <img class="disc-poster-img" src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80">
+              <div class="disc-poster-badge" style="background:#2A5A3A;color:#7CFC00">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                公开课
+              </div>
+              <div class="disc-poster-content">
+                <div class="disc-poster-title">2026宏观基本面透视</div>
+                <div class="disc-poster-sub">复旦教授 深度解读</div>
+              </div>
+            </div>
+            <div class="disc-info">
+              <div class="disc-tags"><span class="disc-tag tag-free">免费</span></div>
+              <div class="disc-name">宏观经济学 · 30讲精华版</div>
+              <div class="disc-author">王教授 · 复旦大学经济学院</div>
+              <div class="disc-meta">
+                <div class="disc-meta-left"><span class="disc-stat"><svg style="width:12px;height:12px;fill:#F5A623;vertical-align:-1px" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> 4.7</span><span class="disc-stat">32,106人</span><span class="disc-stat">30期</span></div>
+                <span class="disc-price" style="color:var(--green)">免费</span>
+              </div>
+            </div>
+          </div>
+          <div class="disc-card">
+            <div class="disc-poster">
+              <img class="disc-poster-img" src="https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80">
+              <div class="disc-poster-badge">
+                <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                高净值专区
+              </div>
+              <div class="disc-poster-content">
+                <div class="disc-poster-title">私募股权实战手册</div>
+                <div class="disc-poster-sub">红杉前合伙人</div>
+              </div>
+            </div>
+            <div class="disc-info">
+              <div class="disc-tags"><span class="disc-tag tag-new">新上线</span></div>
+              <div class="disc-name">私募股权投资实战手册</div>
+              <div class="disc-author">张总 · 红杉资本前合伙人</div>
+              <div class="disc-meta">
+                <div class="disc-meta-left"><span class="disc-stat"><svg style="width:12px;height:12px;fill:#F5A623;vertical-align:-1px" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> 4.9</span><span class="disc-stat">3,218人</span><span class="disc-stat">40期</span></div>
+                <span class="disc-price"><span class="disc-price-num">198</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="disc-card">
+            <div class="disc-poster">
+              <img class="disc-poster-img" src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=800&q=80">
+              <div class="disc-poster-badge">
+                <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                专业研报
+              </div>
+              <div class="disc-poster-content">
+                <div class="disc-poster-title">债券市场深度解析</div>
+                <div class="disc-poster-sub">中金固收研究</div>
+              </div>
+            </div>
+            <div class="disc-info">
+              <div class="disc-tags"></div>
+              <div class="disc-name">债券市场深度解析</div>
+              <div class="disc-author">刘博士 · 中金公司固收研究</div>
+              <div class="disc-meta">
+                <div class="disc-meta-left"><span class="disc-stat"><svg style="width:12px;height:12px;fill:#F5A623;vertical-align:-1px" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> 4.6</span><span class="disc-stat">5,441人</span><span class="disc-stat">已完结</span></div>
+                <span class="disc-price"><span class="disc-price-num">99</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ======================================
+         PAGE: 直播详情
+         ====================================== -->
+    <div class="page" id="page-live-detail">
+      <div class="content-area">
+        <div class="detail-back">
+          <span class="back-btn" onclick="goBack()">‹</span>
+          <span class="detail-back-title" id="live-detail-back-title">直播详情</span>
+        </div>
+        <!-- 直播封面 -->
+        <div class="detail-hero" style="position:relative;overflow:hidden;">
+          <img id="live-detail-img" src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=80" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0.72) 100%);"></div>
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px;">
+            <div id="live-status-badge" style="display:inline-flex;align-items:center;gap:5px;background:#D42B3A;color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px;margin-bottom:10px;">
+              <div style="width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.2s infinite;"></div>
+              直播中
+            </div>
+            <div id="live-detail-title" style="font-size:20px;font-weight:700;color:#fff;">陈明教授：财报解读直播间</div>
+            <div id="live-detail-sub" style="font-size:13px;opacity:0.85;margin-top:6px;color:#fff;">前高盛分析师 · 1,234人正在观看</div>
+          </div>
+        </div>
+
+        <div class="detail-body">
+          <div class="detail-info">
+            <div id="live-detail-name" class="detail-course-name">陈明教授：财报解读直播间</div>
+            <div class="detail-author">
+              <img src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=200&q=80" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle;">
+              <span id="live-detail-author">陈明教授 · CFA · 前高盛大中华区分析师</span>
+            </div>
+            <div class="stats-row">
+              <div class="stat-item"><div id="live-stat1" class="stat-num">1,234</div><div class="stat-label">在线人数</div></div>
+              <div class="stat-item"><div id="live-stat2" class="stat-num">4.9</div><div class="stat-label">评分</div></div>
+              <div class="stat-item"><div id="live-stat3" class="stat-num">免费</div><div class="stat-label">观看</div></div>
+              <div class="stat-item"><div id="live-stat4" class="stat-num">98%</div><div class="stat-label">好评率</div></div>
+            </div>
+            <div id="live-detail-desc" class="detail-desc">手把手教你看懂上市公司财报，本场直播重点解读三一重工2025年报，掌握核心财务指标分析方法。</div>
+          </div>
+
+          <!-- 直播间信息 -->
+          <div style="margin:0 16px 16px;background:#F7F7F8;border-radius:12px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:700;color:#1A1A1A;margin-bottom:10px;">直播安排</div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px;"><span>直播时间</span><span id="live-time-text">今日 20:00 – 21:30</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px;"><span>直播平台</span><span>圆梦教育 App</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;"><span>是否回放</span><span style="color:#00B96B;">✓ 支持回放</span></div>
+          </div>
+
+          <!-- 往期直播 -->
+          <div style="padding:0 16px 16px;">
+            <div style="font-size:14px;font-weight:700;color:#1A1A1A;margin-bottom:12px;">往期回放</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;gap:10px;align-items:center;padding:10px;background:#F7F7F8;border-radius:10px;">
+                <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=200&q=80" style="width:60px;height:44px;border-radius:6px;object-fit:cover;flex-shrink:0;">
+                <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">财报解读第12期：宁德时代深度拆解</div><div style="font-size:11px;color:#AAA;">3,241次观看</div></div>
+                <div style="font-size:11px;color:#D42B3A;font-weight:600;flex-shrink:0;">回放</div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;padding:10px;background:#F7F7F8;border-radius:10px;">
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=200&q=80" style="width:60px;height:44px;border-radius:6px;object-fit:cover;flex-shrink:0;">
+                <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">财报解读第11期：茅台2025中报解析</div><div style="font-size:11px;color:#AAA;">5,189次观看</div></div>
+                <div style="font-size:11px;color:#D42B3A;font-weight:600;flex-shrink:0;">回放</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 底部操作栏 -->
+      <div class="buy-bar" id="live-buy-bar">
+        <div class="buy-price">
+          <div class="price-now" id="live-price-text">免费观看</div>
+        </div>
+        <div class="btn-trial" id="live-subscribe-btn" onclick="showToast('预约成功！开播前将提醒你')">预约提醒</div>
+        <div class="btn-buy" id="live-enter-btn">进入直播</div>
+      </div>
+    </div>
+
+    <!-- ======================================
+         PAGE: 研报详情
+         ====================================== -->
+    <div class="page" id="page-report-detail">
+      <div class="content-area">
+        <div class="detail-back">
+          <span class="back-btn" onclick="goBack()">‹</span>
+          <span class="detail-back-title">研报详情</span>
+        </div>
+        <!-- 研报封面 -->
+        <div class="detail-hero" style="position:relative;overflow:hidden;">
+          <img id="report-detail-img" src="https://images.unsplash.com/photo-1554224154-26032ffc0d07?auto=format&fit=crop&w=800&q=80" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.2) 0%,rgba(0,0,0,0.75) 100%);"></div>
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px;">
+            <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.18);color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.3);">
+              <svg style="width:12px;height:12px;fill:#fff" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+              深度研报 · PDF
+            </div>
+            <div id="report-detail-title" style="font-size:20px;font-weight:700;color:#fff;">新能源汽车产业链深度报告</div>
+            <div id="report-detail-sub" style="font-size:13px;opacity:0.85;margin-top:6px;color:#fff;">PDF · 68页 · 会员专享</div>
+          </div>
+        </div>
+
+        <div class="detail-body">
+          <div class="detail-info">
+            <div id="report-detail-name" class="detail-course-name">新能源汽车产业链深度报告</div>
+            <div class="detail-author">
+              <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=200&q=80" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle;">
+              <span id="report-detail-author">圆梦研究院 · 首席分析师团队</span>
+            </div>
+            <div class="stats-row">
+              <div class="stat-item"><div id="report-stat1" class="stat-num">68</div><div class="stat-label">页数</div></div>
+              <div class="stat-item"><div id="report-stat2" class="stat-num">8,204</div><div class="stat-label">下载次数</div></div>
+              <div class="stat-item"><div id="report-stat3" class="stat-num">4.8</div><div class="stat-label">评分</div></div>
+              <div class="stat-item"><div id="report-stat4" class="stat-num">96%</div><div class="stat-label">好评率</div></div>
+            </div>
+            <div id="report-detail-desc" class="detail-desc">深度拆解新能源汽车全产业链，涵盖锂电池、电机电控、智能驾驶三大核心环节，附2026年行业景气度预测模型。</div>
+          </div>
+
+          <!-- 目录预览 -->
+          <div style="padding:0 16px 16px;">
+            <div style="font-size:14px;font-weight:700;color:#1A1A1A;margin-bottom:12px;">报告目录</div>
+            <div style="display:flex;flex-direction:column;gap:0;">
+              <div class="catalog-item"><span class="cat-date" style="background:#FFF3DC;color:#B8760A;">01</span><span class="cat-title">行业概览：2025年新能源车渗透率突破50%</span></div>
+              <div class="catalog-item"><span class="cat-date" style="background:#FFF3DC;color:#B8760A;">02</span><span class="cat-title">上游：锂资源供需格局与价格趋势预判</span></div>
+              <div class="catalog-item"><span class="cat-date" style="background:#FFF3DC;color:#B8760A;">03</span><span class="cat-title">中游：电池技术路线对比（磷酸铁锂 vs 三元锂）</span></div>
+              <div class="catalog-item"><span class="cat-date" style="background:#FFF3DC;color:#B8760A;">04</span><span class="cat-title">下游：整车厂竞争格局与市场份额分析</span></div>
+              <div class="catalog-item" style="filter:blur(3px);pointer-events:none;"><span class="cat-date" style="background:#F5F5F7;color:#AAA;">05</span><span class="cat-title" style="color:#AAA;">购买后解锁完整报告...</span></div>
+            </div>
+            <div style="text-align:center;margin-top:8px;font-size:12px;color:#AAA;">购买后解锁全部 68 页</div>
+          </div>
+        </div>
+      </div>
+      <!-- 底部购买栏 -->
+      <div class="buy-bar">
+        <div class="buy-price">
+          <div class="price-now" id="report-price-now">¥ 99</div>
+          <div class="price-orig" id="report-price-orig">原价 ¥ 199</div>
+        </div>
+        <div class="btn-trial">预览</div>
+        <div class="btn-buy" onclick="showOrderPage()">立即购买</div>
+      </div>
+    </div>
+
+    <!-- ======================================
+         PAGE: 课程详情
+         ====================================== -->
+    <div class="page" id="page-detail">
+      <div class="content-area">
+        <div class="detail-back">
+          <span class="back-btn" onclick="goBack()">‹</span>
+          <span class="detail-back-title">课程详情</span>
+        </div>
+        <div class="detail-hero" style="position:relative;overflow:hidden;">
+          <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=80" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.3) 0%,rgba(0,0,0,0.6) 100%);"></div>
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px;">
+            <div style="font-size:22px;font-weight:700;color:#fff;">读懂财报：从入门到精通</div>
+            <div style="font-size:13px;opacity:0.9;margin-top:6px;font-weight:400">VIP专享 · 48期精品课</div>
+          </div>
+        </div>
+
+        <div class="detail-body">
+          <div class="detail-info">
+            <div class="detail-course-name">读懂财报：从入门到精通</div>
+            <div class="detail-author">
+              <img src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=200&q=80" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle;">
+              陈明教授 · CFA · 前高盛大中华区分析师
+            </div>
+            <div class="stats-row">
+              <div class="stat-item"><div class="stat-num">48</div><div class="stat-label">已更新</div></div>
+              <div class="stat-item"><div class="stat-num">12,841</div><div class="stat-label">学习人次</div></div>
+              <div class="stat-item"><div class="stat-num">4.9</div><div class="stat-label">课程评分</div></div>
+              <div class="stat-item"><div class="stat-num">98%</div><div class="stat-label">好评率</div></div>
+            </div>
+            <div class="detail-desc">手把手教你看懂上市公司财报，掌握资产负债表、利润表、现金流量表三表联读，识别财务造假信号。</div>
+          </div>
+
+          <div class="detail-tabs">
+            <div class="detail-tab active" onclick="switchDetailTab(this,'tab-catalog')">目录</div>
+            <div class="detail-tab" onclick="switchDetailTab(this,'tab-detail')">详情</div>
+            <div class="detail-tab" onclick="switchDetailTab(this,'tab-circle')">圈子</div>
+          </div>
+
+          <div id="tab-catalog">
+            <div class="catalog-item"><span class="cat-date">0414</span><span class="cat-title">【财报解读】三一重工2025年报深度拆解：营收增长背后的隐忧</span><div class="cat-meta"><div>音频</div><div>7,206次</div></div></div>
+            <div class="catalog-item"><span class="cat-date">0413</span><span class="cat-title">【观点】美联储5月议息：降息预期落空后市场如何定价？</span><div class="cat-meta"><div>音频</div><div>16,698次</div></div></div>
+            <div class="catalog-item"><span class="cat-date">0412</span><span class="cat-title">【专题】读懂现金流量表：自由现金流才是企业真正的血液</span><div class="cat-meta"><div>视频</div><div>9,341次</div></div></div>
+            <div class="catalog-item"><span class="cat-date">0411</span><span class="cat-title">【基础】ROE、负债率、流动比——资产负债表十大核心指标精讲</span><div class="cat-meta"><div>视频</div><div>22,105次</div></div></div>
+          </div>
+
+          <div id="tab-detail" style="display:none">
+            <div class="highlights-section">
+              <div style="font-size:14px;font-weight:700;color:var(--text-main);margin-bottom:10px">课程亮点</div>
+              <div class="highlight-item"><div class="highlight-num">01</div><div class="highlight-text">三表联读：资产负债表、利润表、现金流量表的核心逻辑</div></div>
+              <div class="highlight-item"><div class="highlight-num">02</div><div class="highlight-text">财务造假识别：5大信号让你一眼看穿财务陷阱</div></div>
+              <div class="highlight-item"><div class="highlight-num">03</div><div class="highlight-text">行业对比分析：银行、地产、科技各板块财报差异</div></div>
+              <div class="highlight-item"><div class="highlight-num">04</div><div class="highlight-text">购买后解锁专属学习圈子，与同学互动答疑</div></div>
+            </div>
+          </div>
+
+          <div id="tab-circle" style="display:none">
+            <div style="padding:30px;text-align:center;color:var(--text-hint);font-size:13px">购买后解锁专属圈子</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="buy-bar">
+        <div class="buy-price">
+          <div class="price-now">¥ 199</div>
+          <div class="price-orig">原价 ¥ 399</div>
+        </div>
+        <div class="btn-trial">试听免费</div>
+        <div class="btn-buy" onclick="showOrderPage()">立即购买</div>
+      </div>
+    </div>
+
+    <!-- ======================================
+         PAGE: 订单确认
+         ====================================== -->
+    <div class="page" id="page-order">
+      <div class="content-area">
+        <div class="order-header">
+          <span class="back-btn" onclick="goBack()">‹</span>
+          <span class="order-title">订单确认</span>
+        </div>
+
+        <div style="padding:8px 0 100px">
+          <div style="text-align:center;padding:14px;font-size:12px;color:var(--text-hint)">购买后立即解锁全部内容</div>
+
+          <div class="order-section">
+            <div class="order-product">
+              <div class="order-product-thumb" style="overflow:hidden;">
+                <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=200&q=80" style="width:100%;height:100%;object-fit:cover;">
+              </div>
+              <div>
+                <div class="order-product-name">读懂财报：从入门到精通</div>
+                <div class="order-product-sub">虚拟商品 · 购买后立即解锁</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-section" style="margin-top:10px">
+            <div class="order-section-title">优惠信息</div>
+            <div class="order-row"><span class="order-row-label">优惠券</span><span class="order-row-val red">已选 -¥50</span></div>
+            <div class="order-row"><span class="order-row-label">金豆积分</span><span class="order-row-val red">2,380金豆 抵¥5</span></div>
+            <div class="order-row"><span class="order-row-label">发票</span><span class="order-row-val">电子发票</span></div>
+          </div>
+
+          <div class="order-section" style="margin-top:10px">
+            <div class="order-section-title">支付方式</div>
+            <div class="pay-method-row" onclick="selectPay(this)">
+              <div class="pay-method-icon pay-icon-wechat">
+                <svg style="width:18px;height:18px;fill:#07C160" viewBox="0 0 24 24"><path d="M8.5 12.5a1 1 0 110-2 1 1 0 010 2zm4 0a1 1 0 110-2 1 1 0 010 2zm-6.5 4c-2.5 0-4.5-1.8-4.5-4s2-4 4.5-4 4.5 1.8 4.5 4c0 .5-.1 1-.3 1.5l.8 2.5-2.5-1c-.8.3-1.6.5-2.5.5zm10-4c0-.5-.1-1-.3-1.5l.8-2.5-2.5 1c-.8-.3-1.6-.5-2.5-.5-2.5 0-4.5 1.8-4.5 4s2 4 4.5 4 4.5-1.8 4.5-4z"/></svg>
+              </div>
+              <span class="pay-method-name">微信支付</span>
+              <div class="radio-dot selected"></div>
+            </div>
+            <div class="pay-method-row" onclick="selectPay(this)">
+              <div class="pay-method-icon pay-icon-alipay">
+                <svg style="width:18px;height:18px;fill:#1677FF" viewBox="0 0 24 24"><path d="M21.4 15.6c-.7-.3-3.6-1.5-4.5-1.8-.9-.3-1.5-.5-2.1.5-.6 1-2.4 3-2.9 3.6-.5.6-1 .6-1.7.3-.7-.3-3-1.1-5.2-3.2-2-1.8-3.3-4-3.5-4.7-.2-.7-.2-1.2.4-1.8.6-.6 1.3-1.4 1.8-1.9.5-.5.6-1 .3-1.6-.3-.6-1.3-3.1-1.8-4.3-.5-1.2-1-1-1.4-1-.4 0-.9 0-1.4 0-.5 0-1.3.2-2 1-.7.8-2.6 2.6-2.6 6.3s2.6 7.3 3 7.8c.4.5 5.3 8.1 12.9 11.1 1.8.7 3.2 1.2 4.3 1.5 1.8.5 3.5.4 4.8.2 1.5-.3 4.6-1.9 5.3-3.8.7-1.9.7-3.5.5-3.8-.2-.3-.7-.5-1.4-.9z"/></svg>
+              </div>
+              <span class="pay-method-name">支付宝</span>
+              <div class="radio-dot"></div>
+            </div>
+            <div class="pay-method-row" onclick="selectPay(this)">
+              <div class="pay-method-icon pay-icon-balance">
+                <svg style="width:18px;height:18px;fill:#666" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.3-.4-3.2-.9-3.2-1.7 0-.9 1-1.6 2.7-1.6 1.8 0 2.6.7 2.7 1.9h2.4c-.1-1.6-1.1-3-3-3.5V4H9.3v2.1c-1.8.4-3.2 1.5-3.2 3.2 0 2.1 1.8 3.2 4.4 3.7 2.5.5 3 1.2 3 2 0 .9-.8 1.6-2.7 1.6-2.1 0-2.9-.9-3-2H5.8c.1 1.9 1.5 3.4 3.5 3.8V20h3.2v-2.2c1.9-.4 3.3-1.5 3.3-3.3 0-2.2-1.8-3.1-4.2-3.6z"/></svg>
+              </div>
+              <span class="pay-method-name">余额支付</span>
+              <span class="pay-method-sub">账户余额 ¥320.00</span>
+              <div class="radio-dot"></div>
+            </div>
+          </div>
+
+          <div class="order-section" style="margin-top:10px">
+            <div class="order-section-title">费用明细</div>
+            <div class="price-row"><span class="price-row-label">课程原价</span><span class="price-row-val">¥ 399.00</span></div>
+            <div class="price-row"><span class="price-row-label">限时折扣</span><span class="price-row-val" style="color:var(--red)">-¥ 200.00</span></div>
+            <div class="price-row"><span class="price-row-label">优惠券</span><span class="price-row-val" style="color:var(--red)">-¥ 50.00</span></div>
+            <div class="price-row"><span class="price-row-label">金豆抵扣</span><span class="price-row-val" style="color:var(--red)">-¥ 5.00</span></div>
+            <div class="price-row total"><span class="price-row-label">实付金额</span><span class="price-row-val" style="color:var(--red);font-size:18px">¥ 144.00</span></div>
+          </div>
+          <div style="text-align:center;font-size:11px;color:var(--text-hint);padding:10px">虚拟商品，支付后立即解锁，不支持无理由退款</div>
+        </div>
+      </div>
+
+      <div class="order-footer">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <span class="order-total-label">实付</span>
+            <span class="order-total-price">¥144</span>
+          </div>
+        </div>
+        <button class="btn-pay" onclick="showSuccess()">立即支付</button>
+      </div>
+    </div>
+
+    <!-- ======================================
+         PAGE: 支付成功
+         ====================================== -->
+    <div class="page" id="page-success">
+      <div class="content-area">
+        <div class="detail-back">
+          <span class="back-btn" onclick="switchPage('page-home')">‹</span>
+          <span class="detail-back-title">支付结果</span>
+        </div>
+        <div class="success-page">
+          <div class="success-icon">
+            <svg style="width:34px;height:34px;fill:#fff" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </div>
+          <div class="success-title">支付成功！</div>
+          <div class="success-sub">课程已解锁，立即开始学习吧</div>
+
+          <div class="success-card">
+            <div class="success-product">
+              <div class="success-thumb" style="overflow:hidden;">
+                <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=200&q=80" style="width:100%;height:100%;object-fit:cover;">
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--text-main);margin-bottom:4px">读懂财报：从入门到精通</div>
+                <span class="check-label">
+                  <svg style="width:12px;height:12px;fill:#00B96B;vertical-align:-1px" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                  已解锁 · 全48期
+                </span>
+              </div>
+            </div>
+            <div style="padding:12px 16px">
+              <div style="font-size:12px;color:var(--text-hint);margin-bottom:8px">订单信息</div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-sub);margin-bottom:4px"><span>订单编号</span><span>FN2026041500823</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-sub);margin-bottom:4px"><span>支付金额</span><span style="color:var(--red);font-weight:600">¥ 144.00</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-sub)"><span>支付时间</span><span>2026-04-15 10:39</span></div>
+            </div>
+          </div>
+
+          <button onclick="switchPage('page-home')" style="width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(232,25,44,0.35);margin-bottom:14px">立即开始学习</button>
+
+          <div class="action-item" onclick="showShare()">
+            <div class="action-icon">
+              <svg style="width:18px;height:18px;fill:#E8192C" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.35 2.92 3 2.92s3-1.31 3-2.92c0-1.61-1.35-2.92-3-2.92z"/></svg>
+            </div>
+            <div>
+              <div class="action-label">分享好友，获 ¥20 返现</div>
+              <div class="action-sub">每成功邀请1位好友购买即返现</div>
+            </div>
+            <span class="action-arrow">›</span>
+          </div>
+          <div class="action-item" onclick="switchPage('page-mine')">
+            <div class="action-icon">
+              <svg style="width:18px;height:18px;fill:#E8192C" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            </div>
+            <div>
+              <div class="action-label">查看订单详情</div>
+              <div class="action-sub">订单编号 FN2026041500823</div>
+            </div>
+            <span class="action-arrow">›</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================
+         PAGE: 消息
+         ====================================== -->
+    <div class="page" id="page-msg">
+      <div class="content-area">
+        <div class="msg-header">
+          <span class="msg-header-title">消息</span>
+          <span class="msg-header-action">全部已读</span>
+        </div>
+        <div class="msg-list">
+          <div class="msg-item-row" onclick="switchPage('page-msg-course')" style="cursor:pointer;">
+            <div class="msg-icon-wrap msg-icon-pink">
+              <svg style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.44-.5-3.5-.5-1.3 0-2.05.55-2.05 1.5v10c0 .95.75 1.5 2.05 1.5 1.06 0 2.39-.15 3.5-.5V5zm-11 1.5c0-.95.75-1.5 2.05-1.5 1.06 0 2.39.15 3.5.5v12c-1.11.35-2.44.5-3.5.5-1.3 0-2.05-.55-2.05-1.5v-10zM3 5c1.11-.35 2.44-.5 3.5-.5 1.3 0 2.05.55 2.05 1.5v10c0 .95-.75 1.5-2.05 1.5-1.06 0-2.39-.15-3.5-.5V5z"/></svg>
+            </div>
+            <div class="msg-text-wrap">
+              <div class="msg-text-title">课程精选</div>
+              <div class="msg-text-sub">暂无新消息</div>
+            </div>
+          </div>
+          <div class="msg-item-row" onclick="switchPage('page-msg-new')" style="cursor:pointer;">
+            <div class="msg-icon-wrap msg-icon-blue">
+              <svg style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+            <div class="msg-text-wrap">
+              <div class="msg-text-title">课程上新</div>
+              <div class="msg-text-sub">暂无新消息</div>
+            </div>
+          </div>
+          <div class="msg-item-row" onclick="switchPage('page-msg-live')" style="cursor:pointer;">
+            <div class="msg-icon-wrap msg-icon-purple">
+              <svg style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+            </div>
+            <div class="msg-text-wrap">
+              <div class="msg-text-title">直播预约<span class="msg-badge">1</span></div>
+              <div class="msg-text-sub">明日 20:00 陈明教授直播答疑</div>
+            </div>
+          </div>
+          <div class="msg-item-row" onclick="switchPage('page-msg-circle')" style="cursor:pointer;">
+            <div class="msg-icon-wrap msg-icon-green">
+              <svg style="width:22px;height:22px" viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"/></svg>
+            </div>
+            <div class="msg-text-wrap">
+              <div class="msg-text-title">圈子消息<span class="msg-badge">1</span></div>
+              <div class="msg-text-sub">有同学在你的笔记下留言</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================
+         PAGE: 我的
+         ====================================== -->
+    <div class="page" id="page-mine">
+      <div class="content-area">
+        <!-- 顶部用户资料区 -->
+        <div class="mine-header">
+          <div class="mine-header-row">
+            <div class="mine-user-info">
+              <div class="mine-avatar">
+                <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=200&q=80">
+              </div>
+              <div class="mine-name">牛市领航者</div>
+            </div>
+            <div class="mine-header-icons">
+              <div class="mine-header-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                <span class="mine-header-dot"></span>
+              </div>
+              <div class="mine-header-icon">
+                <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                <span class="mine-header-dot"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIP横幅 -->
+        <div class="mine-vip-banner">
+          <div class="mine-vip-left">
+            <div class="mine-vip-title">开通超级会员</div>
+            <div class="mine-vip-sub">万元课程免费听</div>
+          </div>
+          <div class="mine-vip-btn">开通 ›</div>
+        </div>
+
+        <!-- 资产与增长区 -->
+        <div class="mine-card">
+          <div class="mine-card-item" onclick="switchPage('page-mine-balance')" style="cursor:pointer;">
+            <div class="mine-card-icon icon-orange">
+              <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            </div>
+            <span class="mine-card-label">账户余额</span>
+            <span class="mine-card-value">0.00 元<span class="mine-card-arrow">›</span></span>
+          </div>
+          <div class="mine-card-item" onclick="switchPage('page-mine-invite')" style="cursor:pointer;">
+            <div class="mine-card-icon icon-blue">
+              <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            </div>
+            <span class="mine-card-label">邀请好友</span>
+            <span class="mine-card-value">邀请好友得好礼<span class="mine-card-arrow">›</span></span>
+          </div>
+        </div>
+
+        <!-- 服务与工具区 -->
+        <div class="mine-card mine-service-card">
+          <div class="mine-card-item" onclick="switchPage('page-mine-course')" style="cursor:pointer;">
+            <div class="mine-card-icon icon-red">
+              <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+            </div>
+            <span class="mine-card-label">我的课程</span>
+            <span class="mine-card-arrow">›</span>
+          </div>
+          <div class="mine-card-item" onclick="switchPage('page-mine-rights')" style="cursor:pointer;">
+            <div class="mine-card-icon icon-orange">
+              <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            </div>
+            <span class="mine-card-label">我的权益</span>
+            <span class="mine-card-arrow">›</span>
+          </div>
+          <div class="mine-card-item" onclick="switchPage('page-mine-gift')" style="cursor:pointer;">
+            <div class="mine-card-icon icon-green">
+              <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-.45-1-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-.45-1-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg>
+            </div>
+            <span class="mine-card-label">赠送记录</span>
+            <span class="mine-card-arrow">›</span>
+          </div>
+          <div class="mine-card-item" onclick="switchPage('page-mine-feedback')" style="cursor:pointer;">
+            <div class="mine-card-icon icon-purple">
+              <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/></svg>
+            </div>
+            <span class="mine-card-label">意见反馈</span>
+            <span class="mine-card-arrow">›</span>
+          </div>
+        </div>
+
+        <!-- 底部技术支持 -->
+        <div class="mine-footer">小鹅通提供技术支持</div>
+      </div>
+    </div>
+
+    <!-- Share overlay -->
+
+    <!-- ====== 消息二级：课程精选 ====== -->
+    <div class="page" id="page-msg-course">
+      <div class="content-area">
+        <div class="sub-page-header">
+          <div class="sub-back-btn" onclick="goBack()">‹</div>
+          <div class="sub-page-title">课程精选</div>
+        </div>
+        <div class="empty-wrap" style="padding-top:48px;">
+          <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
+          <div class="empty-title">暂无课程消息</div>
+          <div class="empty-hint">圆梦教育为你精选的好课<br>将在这里通知你</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ====== 消息二级：课程上新 ====== -->
+    <div class="page" id="page-msg-new">
+      <div class="content-area">
+        <div class="sub-page-header">
+          <div class="sub-back-btn" onclick="goBack()">‹</div>
+          <div class="sub-page-title">课程上新</div>
+        </div>
+        <div class="empty-wrap" style="padding-top:48px;">
+          <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+          <div class="empty-title">暂无上新通知</div>
+          <div class="empty-hint">有新课上线时<br>会第一时间通知你</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 消息二级：直播预约 ====== -->
+    <div class="page" id="page-msg-live">
+      <div class="content-area">
+        <div class="sub-page-header">
+          <div class="sub-back-btn" onclick="goBack()">‹</div>
+          <div class="sub-page-title">直播预约</div>
+        </div>
+        <!-- 有一条预约消息 -->
+        <div class="msg-detail-item">
+          <div class="msg-detail-avatar" style="background:linear-gradient(135deg,#C8202E,#E04050);">
+            <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+          </div>
+          <div class="msg-detail-body">
+            <div class="msg-detail-title">直播即将开始提醒</div>
+            <div class="msg-detail-text">您预约的「陈明教授：财报解读直播间」将于明日 20:00 准时开播，请准时参加！</div>
+            <div class="msg-detail-time">今天 10:36</div>
+          </div>
+        </div>
+        <div class="empty-wrap" style="padding-top:40px;">
+          <div class="empty-hint">以上是全部直播预约消息</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 消息二级：圈子消息 ====== -->
+    <div class="page" id="page-msg-circle">
+      <div class="content-area">
+        <div class="sub-page-header">
+          <div class="sub-back-btn" onclick="goBack()">‹</div>
+          <div class="sub-page-title">圈子消息</div>
+        </div>
+        <div class="msg-detail-item">
+          <div class="msg-detail-avatar" style="background:linear-gradient(135deg,#00A85A,#00C86E);">
+            <svg viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"/></svg>
+          </div>
+          <div class="msg-detail-body">
+            <div class="msg-detail-title">有同学给你留言了</div>
+            <div class="msg-detail-text">同学「价值投资人」在你的笔记「财报三表联读心得」下留言：写得非常好，受益匪浅！</div>
+            <div class="msg-detail-time">今天 09:18</div>
+          </div>
+        </div>
+        <div class="empty-wrap" style="padding-top:40px;">
+          <div class="empty-hint">以上是全部圈子消息</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 我的二级：我的课程 ====== -->
+    <div class="page" id="page-mine-course">
+      <div class="content-area">
+        <div class="sub-page-header">
+          <div class="sub-back-btn" onclick="goBack()">‹</div>
+          <div class="sub-page-title">我的课程</div>
+        </div>
+        <div class="empty-wrap" style="padding-top:48px;">
+          <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
+          <div class="empty-title">暂无已购课程</div>
+          <div class="empty-hint">购买课程后会在这里展示<br>快去发现页找找感兴趣的课吧</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 我的二级：我的权益 ====== -->
+    <div class="page" id="page-mine-rights">
+      <div class="content-area">
+        <div class="sub-page-header">
+          <div class="sub-back-btn" onclick="goBack()">‹</div>
+          <div class="sub-page-title">我的权益</div>
+        </div>
+        <div class="empty-wrap" style="padding-top:48px;">
+          <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+          <div class="empty-title">暂无权益</div>
+          <div class="empty-hint">开通会员后解锁专属权益<br>畅享万元课程免费学</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 我的二级：账户余额 ====== -->
+    <div class="page" id="page-mine-balance">
+      <div class="content-area">
+        <div class="sub-page-header">
+          <div class="sub-back-btn" onclick="goBack()">‹</div>
+          <div class="sub-page-title">账户余额</div>
+        </div>
+        <div style="margin:16px;background:#fff;border-radius:16px;padding:28px 20px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+          <div style="font-size:13px;color:#AAAAAA;margin-bottom:8px;">可用余额（元）</div>
+          <div style="font-size:42px;font-weight:800;color:#1A1A1A;">0.00</div>
+        </div>
+        <div class="empty-wrap" style="padding-top:24px;">
+          <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+          <div class="empty-title">暂无交易记录</div>
+          <div class="empty-hint">余额充值和消费记录将在这里展示</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 我的二级：邀请好友 ====== -->
+    <div class="page" id="page-mine-invite">
+      <div class="content-area">
+        <div class="sub-page-header">
+          <div class="sub-back-btn" onclick="goBack()">‹</div>
+          <div class="sub-page-title">邀请好友</div>
+        </div>
+        <div style="margin:16px;background:linear-gradient(135deg,#C8202E,#E04050);border-radius:16px;padding:28px 20px;text-align:center;">
+          <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:8px;">邀请好友 · 共同成长</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-bottom:20px;">好友成功购课，你可获得丰厚奖励</div>
+          <div style="background:rgba(255,255,255,0.2);border-radius:12px;padding:14px 20px;display:inline-flex;align-items:center;gap:12px;">
+            <span style="font-size:15px;font-weight:700;color:#fff;letter-spacing:2px;">YM2026ABC</span>
+          </div>
+          <div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,0.7);">点击复制邀请码分享给好友</div>
+        </div>
+        <div class="empty-wrap" style="padding-top:24px;">
+          <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+          <div class="empty-title">暂无邀请记录</div>
+          <div class="empty-hint">快把邀请码分享给好友吧</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 我的二级：赠送记录 ====== -->
+    <div class="page" id="page-mine-gift">
+      <div class="content-area">
+        <div class="sub-page-header">
+          <div class="sub-back-btn" onclick="goBack()">‹</div>
+          <div class="sub-page-title">赠送记录</div>
+        </div>
+        <div class="empty-wrap" style="padding-top:48px;">
+          <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg></div>
+          <div class="empty-title">暂无赠送记录</div>
+          <div class="empty-hint">购买课程后可赠送给好友</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 我的二级：意见反馈 ====== -->
+    <div class="page" id="page-mine-feedback">
+      <div class="content-area">
+        <div class="sub-page-header">
+          <div class="sub-back-btn" onclick="goBack()">‹</div>
+          <div class="sub-page-title">意见反馈</div>
+        </div>
+        <div style="padding:16px;">
+          <textarea style="width:100%;height:140px;border:1px solid #EBEBEB;border-radius:12px;padding:14px;font-size:14px;color:#1A1A1A;resize:none;outline:none;font-family:inherit;" placeholder="请描述您遇到的问题或建议，我们会认真对待每一条反馈..."></textarea>
+          <div style="text-align:right;font-size:12px;color:#AAAAAA;margin-top:4px;">0 / 200</div>
+          <button style="width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#C8202E,#E04050);color:#fff;border:none;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;">提交反馈</button>
+        </div>
+        <div style="padding:0 16px;">
+          <div style="font-size:14px;font-weight:600;color:#1A1A1A;margin-bottom:12px;">常见问题</div>
+          <div class="sub-list-item" style="border-radius:10px 10px 0 0;border:1px solid #F0F0F0;border-bottom:none;"><span class="sub-list-label">如何购买课程？</span><span class="sub-list-arrow">›</span></div>
+          <div class="sub-list-item" style="border:1px solid #F0F0F0;border-bottom:none;"><span class="sub-list-label">购课后如何观看？</span><span class="sub-list-arrow">›</span></div>
+          <div class="sub-list-item" style="border-radius:0 0 10px 10px;border:1px solid #F0F0F0;"><span class="sub-list-label">会员权益说明</span><span class="sub-list-arrow">›</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay-share" onclick="hideOverlay('overlay-share')">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">分享好友，获 ¥20 返现</div>
+        <div style="background:var(--red-light);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--red);text-align:center">
+          读懂财报：从入门到精通 · 限时 ¥144
+        </div>
+        <div class="share-grid">
+          <div class="share-item"><div class="share-icon"><svg style="width:24px;height:24px;fill:#07C160" viewBox="0 0 24 24"><path d="M8.5 12.5a1 1 0 110-2 1 1 0 010 2zm4 0a1 1 0 110-2 1 1 0 010 2zm-6.5 4c-2.5 0-4.5-1.8-4.5-4s2-4 4.5-4 4.5 1.8 4.5 4c0 .5-.1 1-.3 1.5l.8 2.5-2.5-1c-.8.3-1.6.5-2.5.5zm10-4c0-.5-.1-1-.3-1.5l.8-2.5-2.5 1c-.8-.3-1.6-.5-2.5-.5-2.5 0-4.5 1.8-4.5 4s2 4 4.5 4 4.5-1.8 4.5-4z"/></svg></div><span class="share-label">微信好友</span></div>
+          <div class="share-item"><div class="share-icon"><svg style="width:24px;height:24px;fill:#07C160" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.1c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.15 5 4.02 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div><span class="share-label">朋友圈</span></div>
+          <div class="share-item"><div class="share-icon"><svg style="width:24px;height:24px;fill:#666" viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></div><span class="share-label">复制链接</span></div>
+          <div class="share-item"><div class="share-icon"><svg style="width:24px;height:24px;fill:#666" viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div><span class="share-label">更多</span></div>
+        </div>
+        <button class="btn-cancel" onclick="hideOverlay('overlay-share')">取消</button>
+      </div>
+    </div>
+
+    <!-- SEARCH OVERLAY -->
+    <div id="search-overlay">
+      <div class="search-overlay-header">
+        <div class="search-input-wrap">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="search" inputmode="search" enterkeyhint="search" autocorrect="off" spellcheck="false" id="search-input" placeholder="搜索课程、研报、资讯...">
+          <svg class="search-clear-input" id="search-clear-input" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </div>
+        <span class="search-cancel-btn" id="search-cancel">取消</span>
+      </div>
+      <div class="search-body">
+        <!-- 搜索历史和热门推荐 -->
+        <div id="search-default-content">
+          <div class="search-section">
+            <div class="search-section-header">
+              <span class="search-section-title">搜索历史</span>
+              <span class="search-clear-btn" id="search-clear-history">
+                <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                清空
+              </span>
+            </div>
+            <div class="search-history-tags" id="search-history-tags">
+              <span class="search-history-tag">财报</span>
+              <span class="search-history-tag">港股</span>
+              <span class="search-history-tag">量化投资</span>
+              <span class="search-history-tag">巴菲特</span>
+              <span class="search-history-tag">债券</span>
+            </div>
+          </div>
+          <div class="search-section">
+            <div class="search-section-header">
+              <span class="search-section-title">热门推荐</span>
+            </div>
+            <div class="search-hot-list">
+              <div class="search-hot-item">
+                <span class="search-hot-rank top-1">1</span>
+                <span class="search-hot-text">读懂财报</span>
+                <span class="search-hot-badge">热门</span>
+              </div>
+              <div class="search-hot-item">
+                <span class="search-hot-rank top-2">2</span>
+                <span class="search-hot-text">港股入门指南</span>
+                <span class="search-hot-badge">新上</span>
+              </div>
+              <div class="search-hot-item">
+                <span class="search-hot-rank top-3">3</span>
+                <span class="search-hot-text">量化交易策略</span>
+              </div>
+              <div class="search-hot-item">
+                <span class="search-hot-rank normal">4</span>
+                <span class="search-hot-text">私募股权投资</span>
+              </div>
+              <div class="search-hot-item">
+                <span class="search-hot-rank normal">5</span>
+                <span class="search-hot-text">宏观经济分析</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 搜索结果 -->
+        <div class="search-results" id="search-results">
+          <div class="search-result-card" onclick="showDetail(); closeSearch();">
+            <div class="search-result-poster">财报</div>
+            <div class="search-result-info">
+              <div class="search-result-title">读懂财报：从入门到精通</div>
+              <div class="search-result-meta">专栏 · 48期 · 高盛分析师</div>
+              <div class="search-result-price">¥199</div>
+            </div>
+          </div>
+          <div class="search-result-card" onclick="showDetail(); closeSearch();">
+            <div class="search-result-poster">港股</div>
+            <div class="search-result-info">
+              <div class="search-result-title">港股投资实战指南</div>
+              <div class="search-result-meta">专栏 · 32期 · 中金研究</div>
+              <div class="search-result-price">¥149</div>
+            </div>
+          </div>
+          <div class="search-result-card" onclick="showDetail(); closeSearch();">
+            <div class="search-result-poster">量化</div>
+            <div class="search-result-info">
+              <div class="search-result-title">量化交易策略入门</div>
+              <div class="search-result-meta">视频 · 20节 · 华尔街量化师</div>
+              <div class="search-result-price">¥99</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 清空历史确认弹窗 -->
+    <div id="confirm-overlay">
+      <div class="confirm-dialog">
+        <div class="confirm-title">确定清空搜索历史？</div>
+        <div class="confirm-buttons">
+          <div class="confirm-btn confirm-btn-cancel" id="confirm-cancel">取消</div>
+          <div class="confirm-btn confirm-btn-confirm" id="confirm-confirm">确定</div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div class="toast" id="toast">已置顶</div>
+
+    <!-- 底部动作抽屉 -->
+    <div id="action-sheet-overlay">
+      <div id="action-sheet">
+        <div class="action-sheet-options">
+          <div class="action-sheet-option" id="action-pin">置顶</div>
+          <div class="action-sheet-option danger" id="action-delete">移入回收站</div>
+        </div>
+        <div class="action-sheet-cancel-group">
+          <div class="action-sheet-cancel" id="action-cancel">取消</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 全局底部导航栏 - 必须在 phone-screen 内部 -->
+    <div class="bottom-nav" id="global-nav">
+      <div class="nav-item active" data-page="page-home">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
+        </span>
+        <span class="nav-label">首页</span>
+      </div>
+      <div class="nav-item" data-page="page-discover">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z"/></svg>
+        </span>
+        <span class="nav-label">发现</span>
+      </div>
+      <div class="nav-item" data-page="page-msg">
+        <span class="nav-icon-wrap">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          </span>
+          <span class="nav-badge">2</span>
+        </span>
+        <span class="nav-label">消息</span>
+      </div>
+      <div class="nav-item" data-page="page-mine">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        </span>
+        <span class="nav-label">我的</span>
+      </div>
+    </div>
+
+  </div><!-- phone-screen -->
+
+<!-- 全局底部导航栏 - 放在 phone-wrap 层级 -->
+<div class="bottom-nav" id="global-nav">
+  <div class="nav-item active" data-page="page-home">
+    <span class="nav-icon">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
+    </span>
+    <span class="nav-label">首页</span>
+  </div>
+  <div class="nav-item" data-page="page-discover">
+    <span class="nav-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z"/></svg>
+    </span>
+    <span class="nav-label">发现</span>
+  </div>
+  <div class="nav-item" data-page="page-msg">
+    <span class="nav-icon-wrap">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      </span>
+      <span class="nav-badge">2</span>
+    </span>
+    <span class="nav-label">消息</span>
+  </div>
+  <div class="nav-item" data-page="page-mine">
+    <span class="nav-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    </span>
+    <span class="nav-label">我的</span>
+  </div>
+</div>
+
+</div><!-- phone-wrap -->
+
+<script>
+const _hist = ['page-home'];
+const _mainPages = ['page-home', 'page-discover', 'page-msg', 'page-mine'];
+const _globalNav = document.getElementById('global-nav');
+const _globalStatusBar = document.getElementById('global-status-bar');
+const _whiteBgPages = [
+  'page-discover', 'page-msg',
+  'page-msg-course', 'page-msg-new', 'page-msg-live', 'page-msg-circle',
+  'page-mine-course', 'page-mine-rights', 'page-mine-balance',
+  'page-mine-invite', 'page-mine-gift', 'page-mine-feedback',
+  'page-detail', 'page-order', 'page-success',
+  'page-live-detail', 'page-report-detail'
+];
+
+function switchPage(id) {
+  // 切换页面
+  const targetEl = document.getElementById(id);
+  if (!targetEl) { console.warn('switchPage: 找不到页面', id); return; }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  targetEl.classList.add('active');
+  if (_hist[_hist.length-1] !== id) _hist.push(id);
+  const ca = targetEl.querySelector('.content-area');
+  if (ca) ca.scrollTop = 0;
+
+  // 控制状态栏颜色模式（白底页面需要深色文字）
+  if (_whiteBgPages.includes(id)) {
+    _globalStatusBar.classList.add('dark');
+  } else {
+    _globalStatusBar.classList.remove('dark');
+  }
+
+  // 控制导航栏显示/隐藏
+  if (_mainPages.includes(id)) {
+    _globalNav.classList.remove('hidden');
+    // 更新导航栏状态
+    document.querySelectorAll('#global-nav .nav-item').forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('data-page') === id) {
+        item.classList.add('active');
+      }
+    });
+  } else {
+    // 非主要页面隐藏导航栏
+    _globalNav.classList.add('hidden');
+  }
+}
+
+// 为全局导航栏添加点击事件
+document.querySelectorAll('#global-nav .nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const pageId = this.getAttribute('data-page');
+    switchPage(pageId);
+  });
+});
+
+function goBack() {
+  _hist.pop();
+  const prev = _hist[_hist.length-1] || 'page-home';
+  const prevEl = document.getElementById(prev);
+  if (!prevEl) { console.warn('goBack: 找不到页面', prev); return; }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  prevEl.classList.add('active');
+
+  // 状态栏颜色
+  if (_whiteBgPages.includes(prev)) {
+    _globalStatusBar.classList.add('dark');
+  } else {
+    _globalStatusBar.classList.remove('dark');
+  }
+
+  // 控制导航栏显示/隐藏
+  if (_mainPages.includes(prev)) {
+    _globalNav.classList.remove('hidden');
+    document.querySelectorAll('#global-nav .nav-item').forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('data-page') === prev) {
+        item.classList.add('active');
+      }
+    });
+  } else {
+    _globalNav.classList.add('hidden');
+  }
+}
+
+// showDetail(type, id) 已在下方定义
+function showOrderPage() { switchPage('page-order'); }
+function showSuccess() { switchPage('page-success'); }
+function showShare() { document.getElementById('overlay-share').classList.add('show'); }
+function hideOverlay(id) { document.getElementById(id).classList.remove('show'); }
+
+function selectPay(row) {
+  row.closest('.order-section').querySelectorAll('.radio-dot').forEach(d => d.classList.remove('selected'));
+  row.querySelector('.radio-dot').classList.add('selected');
+}
+
+function switchDetailTab(el, tabId) {
+  el.closest('.detail-tabs').querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['tab-catalog','tab-detail','tab-circle'].forEach(id => {
+    document.getElementById(id).style.display = id === tabId ? 'block' : 'none';
+  });
+}
+
+// Tab clicks - 一级Tab切换逻辑
+document.querySelectorAll('.cat-tab').forEach(t => {
+  t.addEventListener('click', function() {
+    const tabValue = this.getAttribute('data-tab');
+    // 更新Tab激活样式
+    this.closest('.cat-tabs').querySelectorAll('.cat-tab').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+    // 切换内容面板
+    document.querySelectorAll('.tab-content-panel').forEach(panel => {
+      panel.classList.remove('active');
+      if (panel.getAttribute('data-panel') === tabValue) {
+        panel.classList.add('active');
+      }
+    });
+    // 保持当前滚动位置，不强制回顶
+  });
+});
+document.querySelectorAll('.filter-chip').forEach(c => {
+  c.addEventListener('click', function() {
+    this.closest('.filter-row').querySelectorAll('.filter-chip').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+document.querySelectorAll('.recent-tab').forEach(t => {
+  t.addEventListener('click', function() {
+    this.closest('.recent-tabs-row').querySelectorAll('.recent-tab').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Search Overlay Logic
+const searchOverlay = document.getElementById('search-overlay');
+const searchInput = document.getElementById('search-input');
+const searchCancelBtn = document.getElementById('search-cancel');
+const searchClearHistory = document.getElementById('search-clear-history');
+const searchClearInput = document.getElementById('search-clear-input');
+const searchDefaultContent = document.getElementById('search-default-content');
+const searchResults = document.getElementById('search-results');
+const confirmOverlay = document.getElementById('confirm-overlay');
+const confirmCancel = document.getElementById('confirm-cancel');
+const confirmConfirm = document.getElementById('confirm-confirm');
+
+function openSearch() {
+  searchOverlay.classList.add('active');
+  // 重置状态
+  searchInput.value = '';
+  searchClearInput.classList.remove('show');
+  searchDefaultContent.style.display = 'block';
+  searchResults.classList.remove('show');
+  // iOS 需要延迟聚焦才能正确拉起键盘
+  setTimeout(() => {
+    searchInput.focus();
+    searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+  }, 300);
+}
+
+function closeSearch() {
+  searchOverlay.classList.remove('active');
+  searchInput.value = '';
+  searchClearInput.classList.remove('show');
+  searchDefaultContent.style.display = 'block';
+  searchResults.classList.remove('show');
+}
+
+// 点击搜索栏唤起搜索浮层
+document.querySelectorAll('.search-bar, .discover-search').forEach(bar => {
+  bar.addEventListener('click', openSearch);
+});
+
+// 点击取消关闭搜索
+searchCancelBtn.addEventListener('click', closeSearch);
+
+// 输入框内容变化时显示/隐藏清空图标
+searchInput.addEventListener('input', function() {
+  if (this.value.trim()) {
+    searchClearInput.classList.add('show');
+  } else {
+    searchClearInput.classList.remove('show');
+    searchDefaultContent.style.display = 'block';
+    searchResults.classList.remove('show');
+  }
+});
+
+// 点击清空图标清空输入
+searchClearInput.addEventListener('click', function() {
+  searchInput.value = '';
+  searchClearInput.classList.remove('show');
+  searchDefaultContent.style.display = 'block';
+  searchResults.classList.remove('show');
+  searchInput.focus();
+});
+
+// 显示确认弹窗
+function showConfirmDialog() {
+  confirmOverlay.classList.add('show');
+}
+
+// 隐藏确认弹窗
+function hideConfirmDialog() {
+  confirmOverlay.classList.remove('show');
+}
+
+// 点击清空历史按钮 -> 显示确认弹窗
+searchClearHistory.addEventListener('click', showConfirmDialog);
+
+// 点击取消 -> 隐藏弹窗
+confirmCancel.addEventListener('click', hideConfirmDialog);
+
+// 点击遮罩层 -> 隐藏弹窗
+confirmOverlay.addEventListener('click', function(e) {
+  if (e.target === confirmOverlay) {
+    hideConfirmDialog();
+  }
+});
+
+// 点击确定 -> 清空历史并隐藏弹窗
+confirmConfirm.addEventListener('click', function() {
+  document.getElementById('search-history-tags').innerHTML = '<span style="font-size:12px;color:#AAAAAA">暂无搜索历史</span>';
+  hideConfirmDialog();
+});
+
+// 点击历史标签或热门词条
+document.querySelectorAll('.search-history-tag, .search-hot-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const text = this.querySelector('.search-hot-text')?.textContent || this.textContent;
+    searchInput.value = text;
+    searchClearInput.classList.add('show');
+    // 模拟触发搜索
+    performSearch(text);
+  });
+});
+
+// 执行搜索
+function performSearch(keyword) {
+  console.log('搜索关键词:', keyword);
+  searchDefaultContent.style.display = 'none';
+  searchResults.classList.add('show');
+}
+
+// 监听回车键
+searchInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && this.value.trim()) {
+    performSearch(this.value.trim());
+  }
+});
+
+// 底部动作抽屉逻辑
+const actionSheetOverlay = document.getElementById('action-sheet-overlay');
+const actionPin = document.getElementById('action-pin');
+const actionDelete = document.getElementById('action-delete');
+const actionCancel = document.getElementById('action-cancel');
+const toast = document.getElementById('toast');
+let currentCard = null;
+let currentList = null;
+
+// 显示抽屉
+function showActionSheet(card, list) {
+  currentCard = card;
+  currentList = list;
+  actionSheetOverlay.classList.add('active');
+}
+
+// 隐藏抽屉
+function hideActionSheet() {
+  actionSheetOverlay.classList.remove('active');
+  currentCard = null;
+  currentList = null;
+}
+
+// 显示Toast
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1500);
+}
+
+// 点击三点图标触发抽屉
+document.querySelectorAll('.list-item-action, .circle-more').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const card = this.closest('.list-item, .circle-card');
+    const list = this.closest('.list-container, .circle-list');
+    if (card && list) {
+      showActionSheet(card, list);
+    }
+  });
+});
+
+// 点击遮罩关闭
+actionSheetOverlay.addEventListener('click', function(e) {
+  if (e.target === actionSheetOverlay) {
+    hideActionSheet();
+  }
+});
+
+// 点击取消关闭
+actionCancel.addEventListener('click', hideActionSheet);
+
+// 置顶功能
+actionPin.addEventListener('click', function() {
+  if (currentCard && currentList) {
+    currentList.prepend(currentCard);
+    hideActionSheet();
+    showToast('已置顶');
+  }
+});
+
+// 移入回收站（仅样式，暂不实现逻辑）
+actionDelete.addEventListener('click', function() {
+  hideActionSheet();
+  showToast('已移入回收站');
+});
+
+// ── 骨架屏：页面加载后淡出消失 ──
+(function() {
+  const sk = document.getElementById('skeleton-screen');
+  if (!sk) return;
+  setTimeout(function() {
+    sk.classList.add('fade-out');
+    setTimeout(function() { sk.classList.add('hidden'); }, 520);
+  }, 1000);
+})();
+
+// ── Banner 轮播 ──
+(function() {
+  const track = document.getElementById('bannerTrack');
+  if (!track) return;
+  const slides = track.children;
+  const total = slides.length;
+  const dots = [
+    document.getElementById('dot0'),
+    document.getElementById('dot1'),
+    document.getElementById('dot2')
+  ];
+  let cur = 0;
+  let timer = null;
+
+  function goTo(idx) {
+    cur = (idx + total) % total;
+    track.style.transform = 'translateX(-' + (cur * 100) + '%)';
+    dots.forEach(function(d, i) {
+      if (!d) return;
+      d.classList.toggle('active', i === cur);
+    });
+  }
+
+  function next() { goTo(cur + 1); }
+
+  timer = setInterval(next, 3200);
+
+  // 触摸滑动支持
+  const wrap = document.getElementById('bannerWrap');
+  if (wrap) {
+    let startX = 0;
+    wrap.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      clearInterval(timer);
+    }, { passive: true });
+    wrap.addEventListener('touchend', function(e) {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (dx < -30) next();
+      else if (dx > 30) goTo(cur - 1);
+      timer = setInterval(next, 3200);
+    }, { passive: true });
+  }
+})();
+
+// ── 页面切换动画增强 ──
+(function() {
+  const origSwitch = window.switchPage;
+  window.switchPage = function(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.remove('page-slide-in', 'page-slide-back');
+      void el.offsetWidth;
+      el.classList.add('page-slide-in');
+    }
+    origSwitch(id);
+  };
+  const origBack = window.goBack;
+  window.goBack = function() {
+    const prev = window._hist ? _hist[_hist.length - 2] : null;
+    if (prev) {
+      const el = document.getElementById(prev);
+      if (el) {
+        el.classList.remove('page-slide-in', 'page-slide-back');
+        void el.offsetWidth;
+        el.classList.add('page-slide-back');
+      }
+    }
+    origBack();
+  };
+})();
+
+// ── 桌面端：自动缩放手机壳，确保不溢出视窗 ──
+(function() {
+  function scalePhoneWrap() {
+    if (window.innerWidth <= 480) return; // 真机模式不缩放
+    var wrap = document.querySelector('.phone-wrap');
+    if (!wrap) return;
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var pw = 390 + 26; // phone width + padding
+    var ph = 844 + 26; // phone height + padding
+    var scaleX = (vw * 0.96) / pw;
+    var scaleY = (vh * 0.96) / ph;
+    var scale = Math.min(scaleX, scaleY, 1); // 最大1，不放大只缩小
+    wrap.style.transform = 'scale(' + scale + ')';
+    // 补偿缩放后的空间塌陷
+    var scaledH = ph * scale;
+    var scaledW = pw * scale;
+    wrap.style.marginTop = ((scaledH - ph) / 2) + 'px';
+  }
+  scalePhoneWrap();
+  window.addEventListener('resize', scalePhoneWrap);
+})();
+
+// ── 首页滚动时 header 背景处理 ──
+(function() {
+  var ca = document.querySelector('#page-home .content-area');
+  var hdr = document.querySelector('#page-home .home-header');
+  if (!ca || !hdr) return;
+  ca.addEventListener('scroll', function() {
+    var scrolled = ca.scrollTop > 10;
+    // header已经有固定背景，无需动态切换
+    void 0;
+  }, { passive: true });
+})();
+
+
+// ════════════════════════════════════════
+// 详情页数据驱动系统
+// ════════════════════════════════════════
+
+const _courseData = {
+  '1': {
+    title: '读懂财报：从入门到精通',
+    sub: 'VIP专享 · 48期精品课',
+    author: '陈明教授 · CFA · 前高盛大中华区分析师',
+    img: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=800&q=80',
+    stats: ['48', '12,841', '4.9', '98%'],
+    desc: '手把手教你看懂上市公司财报，掌握资产负债表、利润表、现金流量表三表联读，识别财务造假信号。',
+    priceNow: '¥ 199', priceOrig: '原价 ¥ 399',
+    catalog: [
+      ['0414','【财报解读】三一重工2025年报深度拆解：营收增长背后的隐忧','音频','7,206次'],
+      ['0413','【观点】美联储5月议息：降息预期落空后市场如何定价？','音频','16,698次'],
+      ['0412','【专题】读懂现金流量表：自由现金流才是企业真正的血液','视频','9,341次'],
+      ['0411','【基础】ROE、负债率、流动比——资产负债表十大核心指标精讲','视频','22,105次'],
+    ]
+  },
+  '2': {
+    title: '宏观经济学 · 30讲精华版',
+    sub: '免费 · 30期完结',
+    author: '王教授 · 复旦大学经济学院',
+    img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
+    stats: ['30', '32,106', '4.7', '95%'],
+    desc: '系统讲解宏观经济学核心原理，结合中国经济实际，帮你建立完整的宏观分析框架，读懂经济数据背后的逻辑。',
+    priceNow: '免费', priceOrig: '',
+    catalog: [
+      ['01','GDP与经济增长——衡量一国经济健康的核心指标','视频','28,341次'],
+      ['02','货币政策：央行如何用利率调控经济？','视频','24,892次'],
+      ['03','财政政策：政府支出与税收的宏观效应','音频','19,204次'],
+      ['04','通货膨胀：成因、影响与应对策略','视频','21,567次'],
+    ]
+  },
+  '3': {
+    title: '巴菲特投资思想精研',
+    sub: 'VIP专享 · 已完结 · 36期',
+    author: '李华研究员 · 清华经管MBA',
+    img: 'https://images.unsplash.com/photo-1642790237520-f79f3b7d4d6c?auto=format&fit=crop&w=800&q=80',
+    stats: ['36', '8,302', '4.8', '97%'],
+    desc: '深度解读巴菲特60年投资智慧，从价值投资哲学到护城河理论，从安全边际到集中持仓，系统构建价值投资体系。',
+    priceNow: '¥ 128', priceOrig: '原价 ¥ 256',
+    catalog: [
+      ['01','价值投资的本质：买股票就是买公司','视频','9,102次'],
+      ['02','护城河理论：如何识别具有持续竞争优势的企业','视频','8,456次'],
+      ['03','安全边际：为什么要在价值之下买入？','音频','7,234次'],
+      ['04','集中持仓 vs 分散投资：巴菲特的选择逻辑','视频','6,891次'],
+    ]
+  },
+  '4': {
+    title: '私募股权投资实战手册',
+    sub: '专栏 · 已完结 · ¥198',
+    author: '张总 · 红杉资本前合伙人',
+    img: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80',
+    stats: ['40', '3,218', '4.9', '98%'],
+    desc: '红杉资本前合伙人亲授，从LP/GP架构到尽职调查，从估值方法到退出策略，手把手带你进入私募股权投资领域。',
+    priceNow: '¥ 198', priceOrig: '原价 ¥ 398',
+    catalog: [
+      ['01','PE基础：LP、GP、基金架构全解析','视频','4,102次'],
+      ['02','项目来源与筛选：如何找到好项目？','视频','3,876次'],
+      ['03','尽职调查实战：财务、法律、业务三维核查','音频','3,204次'],
+      ['04','估值方法论：DCF、可比公司法、并购法对比','视频','2,945次'],
+    ]
+  },
+  '5': {
+    title: '港股投资实战全攻略',
+    sub: '专栏 · 32期 · ¥149',
+    author: '林分析师 · 港交所认证',
+    img: 'https://images.unsplash.com/photo-1590650046871-92c887a609ee?auto=format&fit=crop&w=800&q=80',
+    stats: ['32', '5,641', '4.7', '94%'],
+    desc: '系统讲解港股市场规则、开户流程、选股策略，重点解析港A差异、打新策略、沽空机制，助你玩转港股市场。',
+    priceNow: '¥ 149', priceOrig: '原价 ¥ 299',
+    catalog: [
+      ['01','港股入门：开户、汇款、交易规则全解','视频','6,342次'],
+      ['02','港A差异：为什么同一家公司股价不同？','视频','5,891次'],
+      ['03','港股打新全攻略：如何提高中签率？','音频','5,204次'],
+      ['04','沽空机制详解：做空港股的原理与风险','视频','4,567次'],
+    ]
+  },
+  '6': {
+    title: '量化交易策略入门到精通',
+    sub: '专栏 · 20期 · ¥199',
+    author: '陈博士 · 前对冲基金量化研究员',
+    img: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=800&q=80',
+    stats: ['20', '2,891', '4.8', '96%'],
+    desc: '从Python基础到策略回测，从因子挖掘到风控管理，手把手带你构建自己的量化交易系统，无需数学博士背景。',
+    priceNow: '¥ 199', priceOrig: '原价 ¥ 399',
+    catalog: [
+      ['01','量化交易概览：什么是量化？能赚钱吗？','视频','3,456次'],
+      ['02','Python数据处理：pandas与金融数据清洗','视频','2,934次'],
+      ['03','均线策略：最简单的量化策略实现','音频','2,671次'],
+      ['04','因子选股：多因子模型构建与回测','视频','2,345次'],
+    ]
+  },
+};
+
+const _liveData = {
+  '1': {
+    title: '陈明教授：财报解读直播间',
+    sub: '前高盛分析师 · 1,234人正在观看',
+    author: '陈明教授 · CFA · 前高盛大中华区分析师',
+    img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=80',
+    status: '直播中', statusColor: '#D42B3A',
+    stats: ['1,234', '4.9', '免费', '98%'],
+    desc: '本场直播深度拆解三一重工2025年报，手把手教你看懂营收增长背后的隐忧，掌握工程机械行业财报分析方法。',
+    time: '今日 20:00 – 21:30', priceText: '免费观看',
+    enterText: '进入直播', subscribeText: null,
+  },
+  '2': {
+    title: '2026下半年宏观经济研判',
+    sub: '首席经济学家 · 862人已预约',
+    author: '赵首席 · 前国泰君安首席经济学家',
+    img: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=800&q=80',
+    status: '今晚 20:00', statusColor: 'rgba(255,255,255,0.2)',
+    stats: ['862', '4.9', '免费', '99%'],
+    desc: '2026年下半年宏观经济如何走？美联储降息节奏、国内财政政策、人民币汇率三大核心变量深度解析，给出可操作的配置建议。',
+    time: '今日 20:00 – 22:00', priceText: '免费预约',
+    enterText: null, subscribeText: '预约提醒',
+  },
+  '3': {
+    title: '私募基金投资策略路演',
+    sub: '红杉前合伙人 · 3,562人已观看',
+    author: '张总 · 红杉资本前合伙人',
+    img: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=800&q=80',
+    status: '回放可看', statusColor: 'rgba(0,0,0,0.4)',
+    stats: ['3,562', '4.8', '免费', '97%'],
+    desc: '完整呈现一场真实的私募基金路演，从基金策略、历史业绩、风控机制到团队背景，让你看懂机构投资人如何筛选基金。',
+    time: '2026-04-10 回放', priceText: '免费观看',
+    enterText: '看回放', subscribeText: null,
+  },
+};
+
+const _reportData = {
+  '1': {
+    title: '债券市场深度解析',
+    sub: 'PDF · 56页 · ¥99',
+    author: '刘博士 · 中金公司固收研究',
+    img: 'https://images.unsplash.com/photo-1618761713684-df7f5a8b7db4?auto=format&fit=crop&w=800&q=80',
+    stats: ['56', '5,441', '4.6', '93%'],
+    desc: '系统梳理中国债券市场结构，深度解析利率债、信用债投资策略，附2026年利率走势预判与配置建议。',
+    priceNow: '¥ 99', priceOrig: '原价 ¥ 199',
+  },
+  '2': {
+    title: '新能源汽车产业链深度报告',
+    sub: 'PDF · 68页 · 会员专享',
+    author: '圆梦研究院 · 首席分析师团队',
+    img: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?auto=format&fit=crop&w=800&q=80',
+    stats: ['68', '8,204', '4.8', '96%'],
+    desc: '深度拆解新能源汽车全产业链，涵盖锂电池、电机电控、智能驾驶三大核心环节，附2026年行业景气度预测模型。',
+    priceNow: '¥ 149', priceOrig: '原价 ¥ 299',
+  },
+  '3': {
+    title: '半导体行业周期研判',
+    sub: 'PDF · 42页 · 免费',
+    author: '王研究员 · 中信证券科技组',
+    img: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=800&q=80',
+    stats: ['42', '12,108', '4.7', '95%'],
+    desc: '全面复盘半导体行业历史周期规律，结合AI算力需求、国产替代进程，研判2026年行业景气拐点与投资机会。',
+    priceNow: '免费', priceOrig: '',
+  },
+};
+
+// 重写 showDetail
+function showDetail(type, id) {
+  if (type === 'course') {
+    const d = _courseData[id];
+    if (!d) return;
+    // 更新课程详情页内容
+    document.querySelector('#page-detail .detail-hero img').src = d.img;
+    document.querySelector('#page-detail .detail-hero div[style*="z-index:1"] div:first-child').textContent = d.title;
+    document.querySelector('#page-detail .detail-hero div[style*="z-index:1"] div:last-child').textContent = d.sub;
+    document.querySelector('#page-detail .detail-course-name').textContent = d.title;
+    document.querySelector('#page-detail .detail-author').innerHTML =
+      '<img src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=200&q=80" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle;">' + d.author;
+    var statNums = document.querySelectorAll('#page-detail .stat-num');
+    d.stats.forEach(function(v,i){ if(statNums[i]) statNums[i].textContent = v; });
+    document.querySelector('#page-detail .detail-desc').textContent = d.desc;
+    document.querySelector('#page-detail .price-now').textContent = d.priceNow;
+    document.querySelector('#page-detail .price-orig').textContent = d.priceOrig;
+    // 更新目录
+    var catalog = document.getElementById('tab-catalog');
+    catalog.innerHTML = d.catalog.map(function(c){
+      return '<div class="catalog-item"><span class="cat-date">' + c[0] + '</span><span class="cat-title">' + c[1] + '</span><div class="cat-meta"><div>' + c[2] + '</div><div>' + c[3] + '</div></div></div>';
+    }).join('');
+    // 显示/隐藏购买按钮
+    document.querySelector('#page-detail .btn-buy').style.display = '';
+    document.querySelector('#page-detail .price-orig').style.display = d.priceOrig ? '' : 'none';
+    // 重置tab
+    switchDetailTab(document.querySelector('#page-detail .detail-tab'), 'tab-catalog');
+    switchPage('page-detail');
+
+  } else if (type === 'live') {
+    const d = _liveData[id];
+    if (!d) return;
+    document.getElementById('live-detail-img').src = d.img;
+    document.getElementById('live-detail-title').textContent = d.title;
+    document.getElementById('live-detail-sub').textContent = d.sub;
+    document.getElementById('live-detail-name').textContent = d.title;
+    document.getElementById('live-detail-author').textContent = d.author;
+    document.getElementById('live-detail-desc').textContent = d.desc;
+    document.getElementById('live-time-text').textContent = d.time;
+    document.getElementById('live-price-text').textContent = d.priceText;
+    // 状态badge
+    var badge = document.getElementById('live-status-badge');
+    badge.style.background = d.statusColor;
+    badge.innerHTML = (d.status === '直播中'
+      ? '<div style="width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.2s infinite;"></div>'
+      : '') + d.status;
+    // 按钮
+    var enterBtn = document.getElementById('live-enter-btn');
+    var subBtn = document.getElementById('live-subscribe-btn');
+    if (d.enterText) { enterBtn.style.display=''; enterBtn.textContent = d.enterText; } else { enterBtn.style.display='none'; }
+    if (d.subscribeText) { subBtn.style.display=''; subBtn.textContent = d.subscribeText; } else { subBtn.style.display='none'; }
+    // stats
+    var stats = d.stats;
+    var labels = ['在线人数','评分','观看','好评率'];
+    ['live-stat1','live-stat2','live-stat3','live-stat4'].forEach(function(sid,i){
+      document.getElementById(sid).textContent = stats[i];
+    });
+    switchPage('page-live-detail');
+
+  } else if (type === 'report') {
+    const d = _reportData[id];
+    if (!d) return;
+    document.getElementById('report-detail-img').src = d.img;
+    document.getElementById('report-detail-title').textContent = d.title;
+    document.getElementById('report-detail-sub').textContent = d.sub;
+    document.getElementById('report-detail-name').textContent = d.title;
+    document.getElementById('report-detail-author').textContent = d.author;
+    document.getElementById('report-detail-desc').textContent = d.desc;
+    document.getElementById('report-price-now').textContent = d.priceNow;
+    document.getElementById('report-price-orig').textContent = d.priceOrig;
+    document.getElementById('report-price-orig').style.display = d.priceOrig ? '' : 'none';
+    var stats = d.stats;
+    ['report-stat1','report-stat2','report-stat3','report-stat4'].forEach(function(sid,i){
+      document.getElementById(sid).textContent = stats[i];
+    });
+    switchPage('page-report-detail');
+  }
+}
+
+</script>
+</body>
+</html>
